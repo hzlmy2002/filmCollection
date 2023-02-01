@@ -1,0 +1,14 @@
+
+Flask==1.1.1
+gunicorn==20.0.4
+
+# flake8==4.0.1
+# flake8-html==0.4.1
+# black==21.9b0
+
+# Jinja2==3.0.2
+# pre-commit==2.15.0
+# virtualenv==20.8.1
+
+
+
