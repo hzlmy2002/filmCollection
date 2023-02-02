@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+import csv
 import mysql.connector
 
 
@@ -21,6 +22,11 @@ class DBManager:
         self.cursor.execute('CREATE TABLE blog (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255))')
         self.cursor.executemany('INSERT INTO blog (id, title) VALUES (%s, %s);', [(i, 'Blog post #%d'% i) for i in range (1,5)])
         self.connection.commit()
+
+    def populate_db_movie_data(self):
+        csv_movie_data = csv.reader(open(".\data\movies.csv"))
+        for row in csv_movie_data:
+            self.cursor.execute('INSERT INTO movie (movieId,title,genres) VALUES(%s,%s,%s)', row)
     
     def query_titles(self):
         self.cursor.execute('SELECT title FROM blog')
@@ -38,7 +44,7 @@ def listBlog():
     global conn
     if not conn:
         conn = DBManager(password_file='/run/secrets/db-password')
-        conn.populate_db()
+        conn.populate_db_movie_data()
     rec = conn.query_titles()
 
     response = ''

@@ -20,6 +20,7 @@ services:
     environment:
       - MYSQL_DATABASE=example
       - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db-password
+      - MYSQL_USER=root
     expose:
       - 3306
       - 33060
@@ -60,6 +61,8 @@ services:
       PMA_PORT: 3306
     ports:
       - '800:80'
+    networks:
+      - backnet
 
 
 
