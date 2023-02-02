@@ -1,29 +1,75 @@
 services:
-  nginx-proxy:
-    build: ./src/backend/nginx
+  db:
+    # We use a mariadb image which supports both amd64 & arm64 architecture
+    image: mariadb:10-focal
+    # If you really want to use MySQL, uncomment the following line
+    #image: mysql:latest
+    command: '--default-authentication-plugin=mysql_native_password'
     restart: always
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 --password="$$(cat /run/secrets/db-password)" --silent']
+      interval: 3s
+      retries: 5
+      start_period: 30s
+    secrets:
+      - db-password
     volumes:
-      - ./nginx/default.conf:/tmp/default.conf
-    environment: 
-      - FLASK_SERVER_ADDR=flask-app:8000
-    ports:
-      - "80:80"
-    depends_on:
-      - flask-app
-    healthcheck:
-      test: ["CMD-SHELL", "curl --silent --fail localhost:80/health-check || exit 1"]
-      interval: 10s
-      timeout: 10s
-      retries: 3
-    command: /app/start.sh
-  flask-app:
-    build: ./src/frontend/flask
+      - db-data:/var/lib/mysql
+    networks:
+      - backnet
+    environment:
+      - MYSQL_DATABASE=example
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db-password
+    expose:
+      - 3306
+      - 33060
+
+  backend:
+    build:
+      context: backend
+      target: builder
     restart: always
-    ports: 
-      - '8000:8000'
-    healthcheck:
-      test: ["CMD-SHELL", "curl --silent --fail localhost:8000/flask-health-check || exit 1"]
-      interval: 10s
-      timeout: 10s
-      retries: 3
-    command: gunicorn -w 3 -t 60 -b 0.0.0.0:8000 app:app
+    secrets:
+      - db-password
+    ports:
+      - 8000:8000
+    networks:
+      - backnet
+      - frontnet
+    depends_on:
+      db:
+        condition: service_healthy
+
+  proxy:
+    build: proxy
+    restart: always
+    ports:
+      - 80:80
+    depends_on: 
+      - backend
+    networks:
+      - frontnet
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: 'Phpmyadmin'
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    ports:
+      - '800:80'
+
+
+
+volumes:
+  db-data:
+
+secrets:
+  db-password:
+    file: db/password.txt
+
+networks:
+  backnet:
+  frontnet:
