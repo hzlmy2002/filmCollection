@@ -18,14 +18,23 @@ class DBManager:
         pf.close()
         self.cursor = self.connection.cursor()
 
-    
-    # def populate_db(self):
-    #     self.cursor.execute('DROP TABLE IF EXISTS blog')
-    #     self.cursor.execute('CREATE TABLE blog (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255))')
-    #     self.cursor.executemany('INSERT INTO blog (id, title) VALUES (%s, %s);', [(i, 'Blog post #%d'% i) for i in range (1,5)])
-    #     self.connection.commit()
+    # test function
+    def populate_db(self):
+        self.cursor.execute('DROP TABLE IF EXISTS blog')
+        self.cursor.execute('CREATE TABLE blog (id INT AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255))')
+        self.cursor.executemany('INSERT INTO blog (id, title) VALUES (%s, %s);', [(i, 'Blog post #%d'% i) for i in range (1,5)])
+        self.connection.commit()
 
-    def populate_db_movie_data(self): #TODO: is this how we load data into database?
+    # test function
+    def query_titles(self):
+        self.cursor.execute('SELECT title FROM blog')
+        rec = []
+        for c in self.cursor:
+            rec.append(c[0])
+        return rec
+
+    #TODO: is this how we load data into database?
+    def populate_db_movie_data(self): 
         print("inside populate movie", flush=True)
         csv_movie_data = csv.reader(open("movies.csv")) # TODO: enable path access from data folder
         self.cursor.execute('DROP TABLE IF EXISTS movies')
@@ -37,14 +46,6 @@ class DBManager:
             self.cursor.execute('INSERT INTO movies (movieId,title,genres) VALUES(%s,%s,%s)', row)
         self.connection.commit()
 
-    
-    # def query_titles(self):
-    #     self.cursor.execute('SELECT title FROM blog')
-    #     rec = []
-    #     for c in self.cursor:
-    #         rec.append(c[0])
-    #     return rec
-
 
 server = Flask(__name__)
 conn = None
@@ -55,16 +56,15 @@ def listBlog():
     if not conn:
         print("not conn")
         conn = DBManager(password_file='/run/secrets/db-password')
-        conn.populate_db_movie_data()
+        conn.populate_db()
 
     print("is conn")
-    #rec = conn.query_titles()
+    rec = conn.query_titles()
 
-    # response = ''
-    # for c in rec:
-    #     response = response  + '<div>   Hello  ' + c + '</div>'
+    response = ''
+    for c in rec:
+        response = response  + '<div>   Hello  ' + c + '</div>' #test response
 
-    response = 'hello world!\n' #temporary 
     return response
 
 
