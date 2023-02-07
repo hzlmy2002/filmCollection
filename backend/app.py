@@ -1,7 +1,7 @@
 from conn import dbConnection
 from flask import Flask
 from flask_restx import Api
-from uc1 import ViewTitle, ViewDetails
+from uc12 import ViewTitle, ViewDetails
 
 app = Flask(__name__)
 api = Api(app)
