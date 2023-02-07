@@ -12,14 +12,16 @@ class CSV2SQL:
             user_id int,\
             movie_id int,\
             rating double,\
-            timestamp int \
+            timestamp int, \
+            PRIMARY KEY (user_id,movie_id) \
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci \
         "
         statm2="\
             CREATE TABLE if not exists movies( \
             movie_id int,\
             title varchar(255),\
-            genres varchar(255)\
+            genres varchar(255),\
+            PRIMARY KEY (movie_id) \
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci \
         "
         statm3="\
@@ -27,24 +29,27 @@ class CSV2SQL:
             user_id int,\
             movie_id int,\
             tag varchar(511),\
-            timestamp int \
+            timestamp int, \
+            PRIMARY KEY (user_id,movie_id,tag) \
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci \
         "
         statm4="\
             CREATE TABLE if not exists links( \
             movie_id int,\
             imdb_id int,\
-            tmdb_id int\
+            tmdb_id int,\
+            PRIMARY KEY (movie_id) \
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci \
         "
         statm5="\
             CREATE TABLE if not exists extended_movie_data( \
             imdb_id int,\
             content varchar(1023),\
-            data datetime,\
+            date datetime,\
             director varchar(255),\
             lead_actor varchar(255),\
-            roten_tomatoes_score int\
+            rotten_tomatoes_score int,\
+            PRIMARY KEY (imdb_id) \
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci \
         "
 
@@ -54,7 +59,8 @@ class CSV2SQL:
             tag2 varchar(511),\
             polarity1 double,\
             polarity2 double,\
-            similarity double\
+            similarity double,\
+            PRIMARY KEY (tag1,tag2) \
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci \
         "
         cursor=self.conn.cursor()
@@ -68,7 +74,25 @@ class CSV2SQL:
         self.conn.commit()
 
     def createIndexes(self):
-        pass
+        statm1="create index ix_ratings on ratings (rating)"
+        statm2="create index ix_genres on movies (genres)"
+        statm3="create index ix_title on movies (title)"
+        statm4="create index ix_tag on tags (tag)"
+        statm5="create index ix_imdb_id on links (imdb_id)"
+        statm6="create index ix_tmdb_id on links (tmdb_id)"
+        statm7="create index ix_rotten_tomatoes_score on extended_movie_data (rotten_tomatoes_score)"
+
+        cursor=self.conn.cursor()
+        cursor.execute(statm1)
+        cursor.execute(statm2)
+        cursor.execute(statm3)
+        cursor.execute(statm4)
+        cursor.execute(statm5)
+        cursor.execute(statm6)
+        cursor.execute(statm7)
+        cursor.close()
+        self.conn.commit()
+
 
     def movieDataConverter(self,row):
         if row[2]=="N/A":
