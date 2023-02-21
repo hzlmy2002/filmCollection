@@ -3,7 +3,7 @@ FROM --platform=$BUILDPLATFORM python:3.10-alpine AS builder
 
 WORKDIR /code
 COPY requirements.txt /code
-apt install mysql-client
+apk add mysql-client
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install -r requirements.txt
 
