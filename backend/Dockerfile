@@ -1,9 +1,10 @@
 # syntax=docker/dockerfile:1.4
-FROM --platform=$BUILDPLATFORM python:3.10-alpine AS builder
+#FROM --platform=$BUILDPLATFORM python:3.10-alpine AS builder
+FROM ubuntu:22.04
 
 WORKDIR /code
 COPY requirements.txt /code
-apk add mysql-client
+CMD apt install mysql-client
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install -r requirements.txt
 
