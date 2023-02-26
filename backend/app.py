@@ -1,6 +1,6 @@
 from conn import dbConnection
 from database import csv2sql
-from flask import Flask
+from flask import Flask, render_template
 from flask_restx import Api
 from uc12 import ViewTitle, ViewDetails
 
@@ -13,8 +13,6 @@ class DBManager:
         print("Database loaded")
         
         
-
-
 app = Flask(__name__)
 api = Api(app)
 conn = None
@@ -30,6 +28,8 @@ def movieTable():
         conn = DBManager()
         conn.populate_db
     print("DB is connected")
+
+    return render_template('index.html')
 
 
 if __name__ == '__main__':

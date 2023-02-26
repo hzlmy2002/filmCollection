@@ -5,6 +5,7 @@ EXPOSE 8000
 
 COPY . /flask
 
+
 WORKDIR /flask
 
 RUN python3 -m pip install -r requirements.txt
