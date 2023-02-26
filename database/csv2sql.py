@@ -153,7 +153,7 @@ class CSV2SQL:
         cursor.close()
         self.conn.commit()
 
-    def run(self):
+    def load_database(self):
         self.createTable()
         self.createIndexes()
         self.insertData()
@@ -161,5 +161,5 @@ class CSV2SQL:
 
         
 
-cq=CSV2SQL()
-cq.run()
+# cq=CSV2SQL()
+# cq.run()

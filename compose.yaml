@@ -12,5 +12,21 @@ services:
       - 3306
       - 33060
 
+  flask:
+    stdin_open: true
+    tty: true
+    build: backend
+    ports:
+      - 5000:5000
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_DEBUG=1
+      - FLASK_ENV=development
+    expose:
+      - 5000
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   mysql_data:
