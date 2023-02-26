@@ -1,3 +1,4 @@
-import MySQLdb
+import mysql.connector
 
-dbConnection=MySQLdb.connect(user="film",password="film",host="localhost",database="films")
+dbConnection=mysql.connector.connect(user="root",password="film",host="db",database="film",connect_timeout=5)
+dbConnection.ping(reconnect=True)
