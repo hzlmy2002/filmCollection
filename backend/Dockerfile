@@ -1,39 +1,13 @@
-# syntax=docker/dockerfile:1.4
-#FROM --platform=$BUILDPLATFORM python:3.10-alpine AS builder
 FROM ubuntu:22.04
 
-WORKDIR /code
-COPY requirements.txt /code
-RUN apt install mysql-client
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install -r requirements.txt
-
-COPY . .
-
-ENV FLASK_APP app.py
-ENV FLASK_ENV development
-ENV FLASK_RUN_PORT 8000
-ENV FLASK_RUN_HOST 0.0.0.0
-ENV FLASK_DEBUG 1
-
-
+RUN apt update && apt install -y python3 python3-pip mysql-client libmysqlclient-dev
 EXPOSE 8000
 
-CMD ["flask", "run"]
+COPY . /flask
 
-FROM builder AS dev-envs
+WORKDIR /flask
 
-RUN <<EOF
-apk update
-apk add git
-EOF
+RUN python3 -m pip install -r requirements.txt
 
-RUN <<EOF
-addgroup -S docker
-adduser -S --shell /bin/bash --ingroup docker vscode
-EOF
+CMD ["python3","app.py"]
 
-# install Docker tools (cli, buildx, compose)
-COPY --from=gloursdocker/docker / /
-
-CMD ["flask", "run"]
