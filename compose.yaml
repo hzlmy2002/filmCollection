@@ -5,6 +5,7 @@ services:
       - 3306:3306
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d/films.sql
     healthcheck:
       test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 --password=$MYSQL_ROOT_PASSWORD --silent']
       interval: 2s
@@ -20,7 +21,7 @@ services:
   flask:
     stdin_open: true
     tty: true
-    build: backend
+    build: flask
     ports:
       - 8000:8000
     environment:
@@ -32,6 +33,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  phpmyadmin:
+      image: phpmyadmin/phpmyadmin:latest
+      container_name: 'Phpmyadmin'
+      links:
+        - db
+      environment:
+        PMA_HOST: db
+        PMA_PORT: 3306
+      ports:
+        - '800:80'
 
 
 
