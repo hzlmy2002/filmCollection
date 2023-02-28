@@ -34,16 +34,16 @@ services:
       db:
         condition: service_healthy
 
-  phpmyadmin:
-      image: phpmyadmin/phpmyadmin:latest
-      container_name: 'Phpmyadmin'
-      links:
-        - db
-      environment:
-        PMA_HOST: db
-        PMA_PORT: 3306
-      ports:
-        - '800:80'
+  # phpmyadmin:
+  #     image: phpmyadmin/phpmyadmin:latest
+  #     container_name: 'Phpmyadmin'
+  #     links:
+  #       - db
+  #     environment:
+  #       PMA_HOST: db
+  #       PMA_PORT: 3306
+  #     ports:
+  #       - '800:80'
 
 
 
