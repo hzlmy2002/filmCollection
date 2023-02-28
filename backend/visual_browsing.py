@@ -30,9 +30,11 @@ class VisualBrowsing():
         command = ("SELECT genre FROM genres")
 
     def get_films_data(self, filters: TableFilters, sorting: TableSorting):
-        command = ("SELECT title,date,rotten_tomatoes_rating "
-                   "FROM Movie WHERE ")
-        command += f"genre = '{filters['genre']}' "
+        command = ("SELECT title, date, genre, rotten_tomatoes_rating\n"
+                   "FROM Movie\n"
+                   "RIGHT JOIN Movie-Genres ON Movie.movieID = Movie-Genres.movieID\n"
+                   "LEFT JOIN Genres ON Movie-Genres.genreID = Genres.genreID\n")
+        command += f"WHERE genre = '{filters['genre']}' "
         date = filters['date']
         rating = filters['rating']
         if date[0] != -1:
@@ -44,7 +46,7 @@ class VisualBrowsing():
         if rating[1] != -1:
             command += f"AND rating <= {rating[1]} "
         sorting_mode = 'ASC' if sorting['asc'] else 'DESC'
-        command += f"ORDER BY {sorting['field']} {sorting_mode} "
+        command += f"\nORDER BY {sorting['field']} {sorting_mode} "
         print(command)
 
 filters: TableFilters = {
