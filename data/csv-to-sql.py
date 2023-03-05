@@ -10,7 +10,8 @@ def create_table(table_name:str, field_names:list, field_types:list, primary_key
     table = drop_table + create_table
     
     for i in range(len(field_names)):
-        field = '\t`' + field_names[i] + '` ' + field_types[i] + ' DEFAULT NULL,\n'
+        null_bool = ' DEFAULT' if field_names[i] not in primary_keys else ' NOT'
+        field = '\t`' + field_names[i] + '` ' + field_types[i] + null_bool + ' NULL,\n'
         table = table + field
     
     primary = '\tPRIMARY KEY ('
@@ -35,7 +36,7 @@ def write_to_table(table_name:str, values:list):
         for field in value:
             if type(field) == datetime:
                 formatted.append(("'" + str(field) + "'"))
-            elif field == None or field == 'N/A':
+            elif field == None or field == 'N/A' or field == '':
                 formatted.append("NULL")
             elif type(field) == str and (field.replace('.','',1)).isdigit():
                 formatted.append(field)
@@ -127,17 +128,18 @@ for movie in extended_movie_csv:
     imdbID = movie[0]
     content = movie[1]
     date = None if movie[2] == 'N/A' else datetime.strptime(movie[2],'%d %b %Y')
-    director = movie[3]
+    directors = [actor.strip() for actor in movie[3].split(',')]
     leadActors = [actor.strip() for actor in movie[4].split(',')]
     rotten_tomatoes_rating = None if movie[5] == 'N/A' else movie[5][:-1]
 
     if imdbID in imdbID_dict: # only add additional info to existing movies in movielens dataset
         movieID = imdbID_dict[imdbID]
-        movie_dict = {"content": content, "date": date, "director": director, "actors": leadActors, "rotten_tomatoes_rating": rotten_tomatoes_rating}
+        movie_dict = {"content": content, "date": date, "directors": directors, "actors": leadActors, "rotten_tomatoes_rating": rotten_tomatoes_rating}
         movies_dict[movieID].update(movie_dict)
 
-        if director not in directorID_dict:
-            directorID_dict.update({director: (len(directorID_dict) + 1)})
+        for d in directors:
+            if d not in directorID_dict:
+                directorID_dict.update({d: (len(directorID_dict) + 1)})
 
         for a in leadActors:
             if a not in actorID_dict:
@@ -181,8 +183,9 @@ for movieID in movies_dict:
     for g in genres:
         movie_genres_values.append([movieID, genreID_dict[g]])
 
-    director = movies_dict[movieID]["director"]
-    movie_director_values.append([movieID, directorID_dict[director]])
+    directors = movies_dict[movieID]["directors"]
+    for d in directors:
+        movie_director_values.append([movieID, directorID_dict[d]])
 
     actors = movies_dict[movieID]["actors"]
     for a in actors:
@@ -351,7 +354,7 @@ print("table writing complete!")
 
 # write to sql file
 
-f = open(db_name + '.sql', 'w')
+f = open('../database/' + db_name + '.sql', 'w')
 
 for line in sql_lines:
     f.write(line + '\n')
