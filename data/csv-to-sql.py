@@ -151,7 +151,7 @@ for rate in ratings_csv:
     timestamp = rate[3]
 
     if movieID in movies_dict:
-        user_ratings_values.append(rate)
+        user_ratings_values.append([userID, movieID, timestamp, rating])
 
 user_tags_values = []
 for t in tags_csv:
@@ -161,7 +161,7 @@ for t in tags_csv:
     timestamp = t[3]
 
     if movieID in movies_dict:
-        user_tags_values.append(t)
+        user_tags_values.append([userID, movieID, timestamp, tag])
 
 movies_values = []
 movie_genres_values = []
