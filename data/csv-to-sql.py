@@ -167,7 +167,7 @@ for t in tags_csv:
 
 movies_values = []
 movie_genres_values = []
-movie_director_values = []
+movie_directors_values = []
 movie_actors_values = []
 links_values = []
 tmdb_link_values = []
@@ -185,7 +185,7 @@ for movieID in movies_dict:
 
     directors = movies_dict[movieID]["directors"]
     for d in directors:
-        movie_director_values.append([movieID, directorID_dict[d]])
+        movie_directors_values.append([movieID, directorID_dict[d]])
 
     actors = movies_dict[movieID]["actors"]
     for a in actors:
@@ -265,13 +265,13 @@ genres_table = create_table(
 )
 sql_lines.append(genres_table)
 
-movie_director_table = create_table(
-    "Movie_Director",
+movie_directors_table = create_table(
+    "Movie_Directors",
     ["movieID", "directorID"],
     ["int(11)", "int(11)"],
     ["movieID", "directorID"]
 )
-sql_lines.append(movie_director_table)
+sql_lines.append(movie_directors_table)
 
 directors_table = create_table(
     "Directors",
@@ -332,8 +332,8 @@ sql_lines.append(write_movie_genres_table)
 write_genres_table = write_to_table("Genres", genres_values)
 sql_lines.append(write_genres_table)
 
-write_movie_director_table = write_to_table("Movie_Director", movie_director_values)
-sql_lines.append(write_movie_director_table)
+write_movie_directors_table = write_to_table("Movie_Directors", movie_directors_values)
+sql_lines.append(write_movie_directors_table)
 
 write_director_table = write_to_table("Directors", director_values)
 sql_lines.append(write_director_table)
