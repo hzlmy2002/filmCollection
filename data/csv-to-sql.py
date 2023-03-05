@@ -234,7 +234,7 @@ user_ratings_table = create_table(
     "User_ratings",
     ["userID", "movieID", "timestamp", "movielens_rating"],
     ["int(11)", "int(11)", "int(11)", "double"],
-    ["userID", "movieID", "timestamp"]
+    ["userID", "movieID", "movielens_rating"]
 )
 sql_lines.append(user_ratings_table)
 
@@ -242,7 +242,7 @@ user_tags_table = create_table(
     "User_tags",
     ["userID", "movieID", "timestamp", "movielens_tag"],
     ["int(11)", "int(11)", "int(11)", "varchar(511)"],
-    ["userID", "movieID", "timestamp"]
+    ["userID", "movieID", "movielens_tag"]
 )
 sql_lines.append(user_tags_table)
 
