@@ -18,6 +18,14 @@ services:
       - 3306
       - 33060
 
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8090:80"
+    environment:
+      PMA_HOSTS: db
+
   flask:
     stdin_open: true
     tty: true
