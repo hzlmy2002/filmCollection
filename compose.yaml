@@ -5,17 +5,26 @@ services:
       - 3306:3306
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
     healthcheck:
       test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 --password=$MYSQL_ROOT_PASSWORD --silent']
       interval: 2s
       retries: 5
       start_period: 30s
     environment:
-      - MYSQL_DATABASE=film
+      - MYSQL_DATABASE=films
       - MYSQL_ROOT_PASSWORD=film
     expose:
       - 3306
       - 33060
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - "8090:80"
+    environment:
+      PMA_HOSTS: db
 
   flask:
     stdin_open: true
