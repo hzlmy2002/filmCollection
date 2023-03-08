@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import TypedDict, Tuple
+from conn import dbConnection
 
 
 class TableSorting(TypedDict):
@@ -14,48 +15,50 @@ class TableFilters(TypedDict):
 
 
 class VisualBrowsing():
-    # def executeSql(self, command):
-    #     try:
-    #         cursor = dbConnection.cursor()
-    #         cursor.execute(command)
-    #         result = cursor.fetchone()
-    #         cursor.close()
-    #     except Exception as e:
-    #         print(e)
-    #         result = {'error': 'error'}
-    #     return result
+    def executeSql(self, command):
+        try:
+            cursor = dbConnection.cursor(buffered=True)
+            cursor.execute(command)
+            result = cursor.fetchall()
+            cursor.close()
+        except Exception as e:
+            print(e)
+            result = {'error': 'error'}
+        return result
 
     def get_genres(self):
         # Check column name and table name
         command = ("SELECT genre FROM genres")
 
     def get_films_data(self, filters: TableFilters, sorting: TableSorting):
-        command = ("SELECT title, date, genre, rotten_tomatoes_rating\n"
-                   "FROM Movie\n"
-                   "RIGHT JOIN Movie-Genres ON Movie.movieID = Movie-Genres.movieID\n"
-                   "LEFT JOIN Genres ON Movie-Genres.genreID = Genres.genreID\n")
-        command += f"WHERE genre = '{filters['genre']}' "
+        command = ("SELECT Movies.title, Movies.date, Genres.genre, Movies.rotten_tomatoes_rating\n"
+                   "FROM Movies\n"
+                   "RIGHT JOIN Movie_Genres ON Movies.movieID = Movie_Genres.movieID\n"
+                   "LEFT JOIN Genres ON Movie_Genres.genreID = Genres.genreID\n")
+        command += f"WHERE Genres.genre = '{filters['genre']}' "
         date = filters['date']
         rating = filters['rating']
         if date[0] != -1:
-            command += f"AND date >= {date[0]} "
+            command += f"AND year(Movies.date) >= {date[0]} "
         if date[1] != -1:
-            command += f"AND date <= {date[1]} "
+            command += f"AND year(Movies.date) <= {date[1]} "
         if rating[0] != -1:
-            command += f"AND rating >= {rating[0]} "
+            command += f"AND Movies.rotten_tomatoes_rating >= {rating[0]} "
         if rating[1] != -1:
-            command += f"AND rating <= {rating[1]} "
+            command += f"AND Movies.rotten_tomatoes_rating <= {rating[1]} "
         sorting_mode = 'ASC' if sorting['asc'] else 'DESC'
         command += f"\nORDER BY {sorting['field']} {sorting_mode} "
-        print(command)
+        result = self.executeSql(command)
+        print(result)
+
 
 filters: TableFilters = {
-    'date': (1988, 1988),
+    'date': (1988, 2000),
     'genre': 'Action',
-    'rating': (3.5, 3.5)
+    'rating': (80, 90)
 }
 sorting: TableSorting = {
     'asc': False,
-    'field' : 'title'
+    'field': 'title'
 }
 VisualBrowsing().get_films_data(filters, sorting)
