@@ -35,7 +35,7 @@ def write_to_table(table_name:str, values:list):
         formatted = []
         for field in value:
             if type(field) == datetime:
-                formatted.append(("'" + str(field) + "'"))
+                formatted.append(("'" + str(field)[:-9] + "'"))
             elif field == None or field == 'N/A' or field == '':
                 formatted.append("NULL")
             elif type(field) == str and (field.replace('.','',1)).isdigit():
@@ -228,7 +228,7 @@ sql_lines.append(use_db)
 movies_table = create_table(
     "Movies",
     ["movieID", "title", "content", "date", "rotten_tomatoes_rating"],
-    ["int(11)", "varchar(255)", "varchar(1023)", "datetime", "int(11)"],
+    ["int(11)", "varchar(255)", "varchar(1023)", "date", "int(11)"],
     ["movieID"]
 )
 sql_lines.append(movies_table)
