@@ -43,9 +43,9 @@ $ curl localhost:80
 View PHPmyAdmin
 ```
 user: root 
-password: db-78n9n
+password: film
 
-http://localhost:800
+http://localhost:8090
 
 ```
 
