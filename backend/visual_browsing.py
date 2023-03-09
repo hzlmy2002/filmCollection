@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import TypedDict, Tuple
 from conn import dbConnection
+import json
 
 
 class TableSorting(TypedDict):
@@ -48,8 +49,15 @@ class VisualBrowsing():
             command += f"AND Movies.rotten_tomatoes_rating <= {rating[1]} "
         sorting_mode = 'ASC' if sorting['asc'] else 'DESC'
         command += f"\nORDER BY {sorting['field']} {sorting_mode} "
+
         result = self.executeSql(command)
-        print(result)
+        result_dict = []
+        for row in result:
+            row_dict = {"Title": row[0], "Date": row[1], "Genre": row[2], "Rotten_tomatoes_rating": row[3]}
+            result_dict.append(row_dict)
+        print(result_dict)
+        return result_dict
+   
 
 
 filters: TableFilters = {
