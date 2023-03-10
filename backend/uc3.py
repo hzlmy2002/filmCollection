@@ -1,9 +1,23 @@
 from conn import dbConnection
+from flask import request
 from flask_restx import Resource
 import numpy as np
 
 
-
+class analyseGeneralRatingAPI(Resource):
+    def get(self,movieID):
+        ar=analyseRating(dbConnection)
+        return ar.getUserRating(movieID)
+    
+class analyseRatingByGenresAPI(Resource):
+    def get(self,movieID,genreID):
+        ar=analyseRating(dbConnection)
+        return ar.getUserGenreRating(movieID,[genreID])
+    
+class analyseRatingSameGenresAPI(Resource):
+    def get(self,movieID):
+        ar=analyseRating(dbConnection)
+        return ar.getSameGenreRating(movieID)
 
 class analyseRating():
     def __init__(self,conn) -> None:
@@ -13,7 +27,7 @@ class analyseRating():
         self.activeUser=[]
         self.inactiveUser=[]
 
-    def getUserAverageRating(self):
+    def getUserType(self):
         self.friendly_user.clear()
         self.unfriendly_user.clear()
         statm="select userID, avg(movielens_rating) from User_ratings group by userID"
@@ -26,7 +40,7 @@ class analyseRating():
             elif row[1]<=3.5:
                 self.unfriendly_user.append(row[0])
 
-    def getUserAverageRatingByGenres(self,genereIDList):
+    def getUserTypeByGenres(self,genereIDList):
         self.friendly_user.clear()
         self.unfriendly_user.clear()
         tmp=[str(i) for i in genereIDList]
@@ -58,7 +72,7 @@ class analyseRating():
                 self.activeUser.append(i+1)
 
     def getUserRating(self,movieID):
-        self.getUserAverageRating()
+        self.getUserType()
         self.getUserActivity()
         friendly_user_rating=-1
         unfriendly_user_rating=-1
@@ -90,7 +104,7 @@ class analyseRating():
         return {"friendly_user_rating":friendly_user_rating,"unfriendly_user_rating":unfriendly_user_rating,"active_user_rating":active_user_rating,"inactive_user_rating":inactive_user_rating}
 
     def getUserGenreRating(self,movieID,genreIDList):
-        self.getUserAverageRatingByGenres(genreIDList)
+        self.getUserTypeByGenres(genreIDList)
         self.getUserActivity()
         friendly_user_rating=-1
         unfriendly_user_rating=-1
@@ -130,11 +144,3 @@ class analyseRating():
         if result:
             result=[row[0] for row in result]
             return self.getUserGenreRating(movieID,result)
-
-
-ar=analyseRating(dbConnection)
-aaa=ar.getSameGenreRating(1)
-
-
-
-pass
