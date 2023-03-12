@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block body %}
+<br><br>
+  <table id="data" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Ratings</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in range(data_rows) %}
+        <tr>
+          <td>{{ titles[i] }}</td>
+          <td>{{ dates[i] }}</td>
+          <td>{{ ratings[i] }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    $(document).ready(function () {
+      $('#data').DataTable();
+    });
+  </script>
+{% endblock %}

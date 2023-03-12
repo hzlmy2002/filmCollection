@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block body %}
+  <table id="data" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Date</th>
+        <th>Genre</th>
+        <th>Ratings</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for film in films %}
+        <tr>
+          <td>{{ film.name }}</td>
+          <td>{{ film.date }}</td>
+          <td>{{ film.genre }}</td>
+          <td>{{ film.ratings }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    $(document).ready(function () {
+      $('#data').DataTable({
+        columns: [
+          null,
+          {searchable: false},
+          {orderable: false, searchable: false},
+          {orderable: false, searchable: false},
+          null],
+      });
+    });
+  </script>
+{% endblock %}
