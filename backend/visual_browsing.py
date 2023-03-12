@@ -1,5 +1,6 @@
 from typing import TypedDict, Tuple
 from sql_executor import SqlExecutor
+from flask_restx import Resource
 
 
 class TableSorting(TypedDict):
@@ -13,24 +14,25 @@ class TableFilters(TypedDict):
     rating: Tuple[float, float]
 
 
-class VisualBrowsing():
-    def __init__(self) -> None:
-        self.sql_executor = SqlExecutor()
-
-    def get_all_genres(self):
+class GetAllGenres(Resource):
+    def get(self):
         command = ("SELECT Genres.genre FROM Genres")
-        result = self.sql_executor.execute_sql(command)
+        result = [row[0] for row in SqlExecutor().execute_sql(command)]
         return result
 
-    def get_movie_genres(self, title):
+
+class GetMovieGenres(Resource):
+    def get(self, movieID):
         command = ("SELECT Genres.genre "
                    "FROM Movies, Movie_Genres, Genres "
                    "WHERE Movies.movieID = Movie_Genres.movieID AND Movie_Genres.genreID = Genres.genreID ")
-        command += f"AND Movies.title = '{title}' "
-        result = self.sql_executor.execute_sql(command)
+        command += f"AND Movies.movieID = '{movieID}' "
+        result = [row[0] for row in SqlExecutor().execute_sql(command)]
         return result
 
-    def get_films_data(self, filters: TableFilters, sorting: TableSorting):
+
+class GetMoviesData(Resource):
+    def get(self, filters: TableFilters, sorting: TableSorting):
         command = ("SELECT Movies.title, Movies.date, Genres.genre, Movies.rotten_tomatoes_rating "
                    "FROM Movies "
                    "RIGHT JOIN Movie_Genres ON Movies.movieID = Movie_Genres.movieID "
@@ -58,13 +60,13 @@ class VisualBrowsing():
         return result_dict
 
 
-filters: TableFilters = {
-    'date': (1988, 2000),
-    'genre': 'Action',
-    'rating': (80, 90)
-}
-sorting: TableSorting = {
-    'asc': False,
-    'field': 'title'
-}
-VisualBrowsing().get_films_data(filters, sorting)
+# filters: TableFilters = {
+#     'date': (1988, 2000),
+#     'genre': 'Action',
+#     'rating': (80, 90)
+# }
+# sorting: TableSorting = {
+#     'asc': False,
+#     'field': 'title'
+# }
+# VisualBrowsing().get_films_data(filters, sorting)
