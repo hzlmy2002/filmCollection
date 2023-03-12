@@ -1,7 +1,5 @@
-from enum import Enum
 from typing import TypedDict, Tuple
-from conn import dbConnection
-import json
+from sql_executor import SqlExecutor
 
 
 class TableSorting(TypedDict):
@@ -16,26 +14,27 @@ class TableFilters(TypedDict):
 
 
 class VisualBrowsing():
-    def executeSql(self, command):
-        try:
-            cursor = dbConnection.cursor(buffered=True)
-            cursor.execute(command)
-            result = cursor.fetchall()
-            cursor.close()
-        except Exception as e:
-            print(e)
-            result = {'error': 'error'}
+    def __init__(self) -> None:
+        self.sql_executor = SqlExecutor()
+
+    def get_all_genres(self):
+        command = ("SELECT Genres.genre FROM Genres")
+        result = self.sql_executor.execute_sql(command)
         return result
 
-    def get_genres(self):
-        # Check column name and table name
-        command = ("SELECT genre FROM genres")
+    def get_movie_genres(self, title):
+        command = ("SELECT Genres.genre "
+                   "FROM Movies, Movie_Genres, Genres "
+                   "WHERE Movies.movieID = Movie_Genres.movieID AND Movie_Genres.genreID = Genres.genreID ")
+        command += f"AND Movies.title = '{title}' "
+        result = self.sql_executor.execute_sql(command)
+        return result
 
     def get_films_data(self, filters: TableFilters, sorting: TableSorting):
-        command = ("SELECT Movies.title, Movies.date, Genres.genre, Movies.rotten_tomatoes_rating\n"
-                   "FROM Movies\n"
-                   "RIGHT JOIN Movie_Genres ON Movies.movieID = Movie_Genres.movieID\n"
-                   "LEFT JOIN Genres ON Movie_Genres.genreID = Genres.genreID\n")
+        command = ("SELECT Movies.title, Movies.date, Genres.genre, Movies.rotten_tomatoes_rating "
+                   "FROM Movies "
+                   "RIGHT JOIN Movie_Genres ON Movies.movieID = Movie_Genres.movieID "
+                   "LEFT JOIN Genres ON Movie_Genres.genreID = Genres.genreID ")
         command += f"WHERE Genres.genre = '{filters['genre']}' "
         date = filters['date']
         rating = filters['rating']
@@ -50,14 +49,13 @@ class VisualBrowsing():
         sorting_mode = 'ASC' if sorting['asc'] else 'DESC'
         command += f"\nORDER BY {sorting['field']} {sorting_mode} "
 
-        result = self.executeSql(command)
-        result_dict = []
-        for row in result:
-            row_dict = {"Title": row[0], "Date": row[1], "Genre": row[2], "Rotten_tomatoes_rating": row[3]}
-            result_dict.append(row_dict)
+        result = SqlExecutor().execute_sql(command)
+        result_dict = SqlExecutor().convert_to_dict(
+            result, ["Title", "Date", "Genre", "Rotten_tomatoes_rating"])
+        for movie in result_dict:
+            movie["Genre"] = self.get_movie_genres(movie["Title"])
         print(result_dict)
         return result_dict
-   
 
 
 filters: TableFilters = {
