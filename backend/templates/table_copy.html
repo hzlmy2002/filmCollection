@@ -5,17 +5,19 @@
   <table id="data" class="table table-striped">
     <thead>
       <tr>
-        <th>Name</th>
+        <th>Title</th>
         <th>Date</th>
+        <th>Genre</th>
         <th>Ratings</th>
       </tr>
     </thead>
     <tbody>
       {% for i in range(data_rows) %}
         <tr>
-          <td>{{ titles[i] }}</td>
-          <td>{{ dates[i] }}</td>
-          <td>{{ ratings[i] }}</td>
+          <td>{{ movies[i].Title }}</td>
+          <td>{{ movies[i].Date }}</td>
+          <td>{{ movies[i].Genre }}</td>
+          <td>{{ movies[i].Rotten_tomatoes_rating }}</td>
         </tr>
       {% endfor %}
     </tbody>
