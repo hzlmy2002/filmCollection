@@ -1,5 +1,5 @@
 from conn import dbConnection
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_restx import Api, Resource
 from visual_browsing import VisualBrowsing, TableFilters, TableSorting
 from uc12 import ViewTitle, ViewDetails
@@ -49,15 +49,42 @@ class DBManager: #TODO: separate file
         pass
 
 
-@api_ns.route('/movies')
-class Example(Resource):
-    def get(self):
-        payload = {'hello': 'world'}
-        return payload
+# @api_ns.route('/movies')
+# class Example(Resource):
+#     def get(self):
+#         payload = {'hello': 'world'}
+#         return payload
 
 
 #frontend route
-@app.route('/movies', methods=['GET']) #TODO: fix this to show at '/' endpoint
+# @app.route('/movies') #TODO: fix this to show at '/' endpoint
+# def index():
+#     global conn
+#     if not conn:
+#         print("Connecting db...")
+#         conn = DBManager()
+#     print("DB is connected")
+#     print("inside movie table")
+#     # titles, dates, ratings = conn.query_table_data()
+#     # data_rows = len(titles)
+#     filters: TableFilters = {
+#         'present': False,
+#         'date': None,
+#         'genre': None,
+#         'rating': None
+#     }
+#     sorting: TableSorting = {
+#         'present': False,
+#         'asc': None,
+#         'field': None
+#     }
+#     movie_pl = conn.visual_browsing.get_films_data(filters, sorting)
+#     data_rows = len(movie_pl)
+#     #print(data)
+
+#     return render_template('test.html',data_rows=data_rows, movies=movie_pl)
+
+@app.route('/movies') #TODO: fix this to show at '/' endpoint
 def index():
     global conn
     if not conn:
@@ -65,8 +92,13 @@ def index():
         conn = DBManager()
     print("DB is connected")
     print("inside movie table")
-    # titles, dates, ratings = conn.query_table_data()
-    # data_rows = len(titles)
+    return render_template('server_table.html')
+
+
+@app.route('/api/movie_data')
+def movie_data():
+    print("inside api data")
+
     filters: TableFilters = {
         'present': False,
         'date': None,
@@ -78,16 +110,23 @@ def index():
         'asc': None,
         'field': None
     }
+
+    search = request.args.get('search[value]')
+    if search:
+        print("searching...")
+        print(f'%{search}%')
+
     movie_pl = conn.visual_browsing.get_films_data(filters, sorting)
     data_rows = len(movie_pl)
-    #print(data)
 
-    return render_template('test.html',data_rows=data_rows, movies=movie_pl)
-
-
-# @app.route('/movies/api/movie_data')
-# def movie_data():
-#     query = VisualBrowsing
+    # response
+    return {
+        'data': movie_pl,
+        'recordsFiltered': data_rows,
+        'recordsTotal': data_rows,
+        'draw': request.args.get('draw', type=int),
+    }
+    
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0',port=8000)
