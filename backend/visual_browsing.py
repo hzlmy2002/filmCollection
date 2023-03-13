@@ -65,10 +65,35 @@ class VisualBrowsing():
 
         result = self.executeSql(command)
         result_dict = []
-        for row in result:
-            row_dict = {"Title": row[0], "Date": row[1], "Genre": row[2], "Rotten_tomatoes_rating": row[3]}
-            result_dict.append(row_dict)
-        print(result_dict)
+        genre_str = ""
+        count = 0
+        for i in range(len(result)):
+            row = result[i]
+            # genre_str += row[2]
+            if(i != len(result)-1):
+                next_row = result[i+1]
+                if(row[0] == next_row[0]): #format multiple genres
+                    if(count == 0):
+                        genre_str += row[2]
+                    temp = " | " + next_row[2]
+                    genre_str += temp
+                    count += 1
+                else:
+                    if(count == 0): #only one genre
+                        row_dict = {"Title": row[0], "Date": row[1], "Genre": row[2], "Rotten_tomatoes_rating": row[3]}
+                    else:
+                        row_dict = {"Title": row[0], "Date": row[1], "Genre": genre_str, "Rotten_tomatoes_rating": row[3]}
+                    result_dict.append(row_dict)
+                    genre_str = ""
+                    count = 0
+            else:
+                if(count == 0):
+                    row_dict = {"Title": row[0], "Date": row[1], "Genre": genre_str, "Rotten_tomatoes_rating": row[3]}
+                else:
+                    row_dict = {"Title": row[0], "Date": row[1], "Genre": row[2], "Rotten_tomatoes_rating": row[3]}
+                result_dict.append(row_dict)
+
+        #print(result_dict)
         return result_dict
    
     # def get_test_films_data(self, filters: TableFilters, sorting: TableSorting):

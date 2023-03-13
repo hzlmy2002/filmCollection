@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bootstrap Simple Data Table</title>
+<title>Movie Data Table</title>
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -139,7 +139,7 @@ $(document).ready(function(){
             <div class="table-wrapper">
                 <div class="table-title">
                     <div class="row">
-                        <div class="col-sm-8"><h2>Movie <b>Details</b></h2></div>
+                        <div class="col-sm-8"><h2>Movie Table</h2></div>
                         <div class="col-sm-4">
                             <div class="search-box">
                                 <i class="material-icons">&#xE8B6;</i>
@@ -153,38 +153,61 @@ $(document).ready(function(){
                         <tr>
                             <th>#</th>
                             <th>Title <i class="fa fa-sort"></i></th>
-                            <th>Date <i class="fa fa-sort"></i></th>
+                            <th>Date 
+                                <div class="dropdown text-right">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdown_genres" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                        Filter
+                                    </button>
+                                    <div id="menu" class="dropdown-menu" aria-labelledby="dropdown_genres">
+                                        <form class="px-4 py-2">
+                                            <input type="search" class="form-control" id="searchGenre" placeholder="Search genre" autofocus="autofocus">
+                                        </form>
+                                        <div id="menuItems"></div>
+                                        <div id="empty" class="dropdown-header">No genres found</div>
+                                    </div>
+                                </div><i class="fa fa-sort"></i></th>
                             <th>Ratings <i class="fa fa-sort"></i></th>
-                            <th>Genres</th>
+                            <th class="text-center">Genres 
+                                <div class="dropdown text-right">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdown_genres" data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                        Filter
+                                    </button>
+                                    <div id="menu" class="dropdown-menu" aria-labelledby="dropdown_genres">
+                                        <form class="px-4 py-2">
+                                            <input type="search" class="form-control" id="searchGenre" placeholder="Search genre" autofocus="autofocus">
+                                        </form>
+                                        <div id="menuItems"></div>
+                                        <div id="empty" class="dropdown-header">No genres found</div>
+                                    </div>
+                                </div>
+                            </th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for i in range(data_rows) %}
+                        {% for movie in movies %}
                         <tr>
-                            <td>{{i}}</td>
-                            <td>{{ movies[i].Title }}</td>
-                            <td>{{ movies[i].Date }}</td>
-                            <td>{{ movies[i].Rotten_tomatoes_rating }}</td>
-                            <td>{{ movies[i].Genre }}</td>
+                            <td>#</td>
+                            <td>{{ movie.Title }}</td>
+                            <td>{{ movie.Date }}</td>
+                            <td>{{ movie.Rotten_tomatoes_rating }}</td>
+                            <td>{{ movie.Genre }}</td>
                             <td>
                                 <a href="#" class="view" title="View" data-toggle="tooltip"><i class="material-icons">&#xE417;</i></a>
-                                <a href="#" class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></a>
-                                <a href="#" class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 <div class="clearfix">
-                    <div class="hint-text">Showing <b>5</b> out of <b>25</b> entries</div>
+                    <div class="hint-text">Showing <b>{{ page.data_rows_displayed }}</b> out of <b>{{ page.total_data_rows }}</b> entries</div>
                     <ul class="pagination">
                         <li class="page-item disabled"><a href="#"><i class="fa fa-angle-double-left"></i></a></li>
-                        <li class="page-item"><a href="#" class="page-link">1</a></li>
-                        <li class="page-item"><a href="#" class="page-link">2</a></li>
-                        <li class="page-item active"><a href="#" class="page-link">3</a></li>
-                        <li class="page-item"><a href="#" class="page-link">4</a></li>
-                        <li class="page-item"><a href="#" class="page-link">5</a></li>
+                        {% for i in range( page.pages ) %}
+                        <li class="page-item"><a href="/movies?page_num={{i}}" class="page-link">{{i}}</a></li>
+                        {% endfor %}
                         <li class="page-item"><a href="#" class="page-link"><i class="fa fa-angle-double-right"></i></a></li>
                     </ul>
                 </div>
