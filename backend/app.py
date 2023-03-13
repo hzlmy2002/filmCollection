@@ -4,7 +4,7 @@ from flask_restx import Api, Resource
 from uc12 import ViewTitle, ViewDetails
 from uc3 import analyseGeneralRatingAPI, analyseRatingByGenresAPI, analyseRatingSameGenresAPI
 from visual_browsing import GetAllGenres, GetMovieGenres, GetMoviesData
-from setup_api import SetupApi
+
 app = Flask(__name__)
 # api = Api(app, doc='/api/docs')
 conn = None
@@ -19,7 +19,7 @@ api.add_resource(ViewTitle, '/api/v1/view/title/<string:keyword>')
 api.add_resource(ViewDetails, '/api/v1/view/details/<int:movie_id>')
 api.add_resource(GetAllGenres, '/api/v1/view/all-genres')
 api.add_resource(GetMovieGenres, '/api/v1/view/movie-genres/<int:movieID>')
-api.add_resource(GetMoviesData, '/api/v1/view/movies-data')
+api.add_resource(GetMoviesData, '/movies')
 
 #UC 3
 api.add_resource(analyseGeneralRatingAPI, '/api/v1/rating/general/<int:movieID>')
@@ -31,32 +31,9 @@ class DBManager: #TODO: separate file
         self.connection = dbConnection
         self.cursor = self.connection.cursor()
         #self.visual_browsing = VisualBrowsing()
-        self.get_movie_data = GetMoviesData()
+        # self.get_movie_data = GetMoviesData()
 
 
-    # title, date, genre, ratings
-    def query_table_data(self):
-        titles = []
-        dates = []
-        genres = []
-        ratings = []
-
-        self.cursor.execute('SELECT title FROM Movies')
-        for c in self.cursor:
-            titles.append(c[0])
-        
-        self.cursor.execute('SELECT date FROM Movies')
-        for c in self.cursor:
-            dates.append(c[0])
-
-        self.cursor.execute('SELECT rotten_tomatoes_rating FROM Movies')
-        for c in self.cursor:
-            ratings.append(c[0])
-
-        return titles, dates, ratings
-    
-    def format_genres_to_string(self):
-        pass
 
 # UI component
 class Pagination:
@@ -68,11 +45,6 @@ class Pagination:
         self.pages = 0
 
 
-# @api_ns.route('/movies')
-# class Example(Resource):
-#     def get(self):
-#         payload = {'hello': 'world'}
-#         return payload
 
 
 pagination = Pagination()
@@ -154,6 +126,8 @@ def index():
 #         'recordsTotal': data_rows,
 #         'draw': request.args.get('draw', type=int),
 #     }
+
+
     
 
 if __name__ == '__main__':

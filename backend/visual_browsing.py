@@ -2,8 +2,6 @@ from typing import TypedDict, Tuple
 from sql_executor import SqlExecutor
 from flask import Flask
 from flask_restx import Resource, inputs, Api
-from app import api
-
 
 class Format_result():
     def format_genre(self, result, result_dict):
@@ -53,8 +51,8 @@ class GetMovieGenres(Resource):
         return result
 
 
-# app = Flask(__name__)
-# api = Api(app)
+app = Flask(__name__)
+api = Api(app)
 
 parser = api.parser()
 parser.add_argument('sorting_asc', type=inputs.boolean, required=True)
