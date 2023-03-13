@@ -1,18 +1,27 @@
 from conn import dbConnection
 from flask import Flask, render_template, request
 from flask_restx import Api, Resource
-from visual_browsing import VisualBrowsing, TableFilters, TableSorting
 from uc12 import ViewTitle, ViewDetails
 from uc3 import analyseGeneralRatingAPI, analyseRatingByGenresAPI, analyseRatingSameGenresAPI
-
+from visual_browsing import GetAllGenres, GetMovieGenres, GetMoviesData
+from setup_api import SetupApi
 app = Flask(__name__)
-api = Api(app, doc='/api/docs')
+# api = Api(app, doc='/api/docs')
 conn = None
+
+api = Api(app, doc='/api/docs')
 
 #namespace of the API
 api_ns = api.namespace('api', description= 'Example')
 
-#add API 
+#UC 1 and UC 2
+api.add_resource(ViewTitle, '/api/v1/view/title/<string:keyword>')
+api.add_resource(ViewDetails, '/api/v1/view/details/<int:movie_id>')
+api.add_resource(GetAllGenres, '/api/v1/view/all-genres')
+api.add_resource(GetMovieGenres, '/api/v1/view/movie-genres/<int:movieID>')
+api.add_resource(GetMoviesData, '/api/v1/view/movies-data')
+
+#UC 3
 api.add_resource(analyseGeneralRatingAPI, '/api/v1/rating/general/<int:movieID>')
 api.add_resource(analyseRatingByGenresAPI, '/api/v1/rating/genres/<int:movieID>/<int:genreID>')
 api.add_resource(analyseRatingSameGenresAPI, '/api/v1/rating/samegenres/<int:movieID>')
@@ -21,7 +30,8 @@ class DBManager: #TODO: separate file
     def __init__(self):
         self.connection = dbConnection
         self.cursor = self.connection.cursor()
-        self.visual_browsing = VisualBrowsing()
+        #self.visual_browsing = VisualBrowsing()
+        self.get_movie_data = GetMoviesData()
 
 
     # title, date, genre, ratings
@@ -78,18 +88,18 @@ def index():
     print("inside movie table")
     # titles, dates, ratings = conn.query_table_data()
     # data_rows = len(titles)
-    filters: TableFilters = {
-        'present': False,
-        'date': None,
-        'genre': None,
-        'rating': None
-    }
-    sorting: TableSorting = {
-        'present': False,
-        'asc': None,
-        'field': None
-    }
-    movie_pl = conn.visual_browsing.get_films_data(filters, sorting)
+    # filters: TableFilters = {
+    #     'present': False,
+    #     'date': None,
+    #     'genre': None,
+    #     'rating': None
+    # }
+    # sorting: TableSorting = {
+    #     'present': False,
+    #     'asc': None,
+    #     'field': None
+    # }
+    movie_pl = conn.get_movie_data
 
     page_num = request.args.get('page_num', 1, type=int)
     #pagination
