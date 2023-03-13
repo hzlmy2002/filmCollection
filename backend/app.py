@@ -9,7 +9,7 @@ app = Flask(__name__)
 conn = None
 api = Api(app)
 
-class DBManager:
+class DBManager: #TODO: separate file
     def __init__(self):
         self.connection = dbConnection
         self.cursor = self.connection.cursor()
@@ -43,7 +43,7 @@ api.add_resource(analyseGeneralRatingAPI, '/api/v1/rating/general/<int:movieID>'
 api.add_resource(analyseRatingByGenresAPI, '/api/v1/rating/genres/<int:movieID>/<int:genreID>')
 api.add_resource(analyseRatingSameGenresAPI, '/api/v1/rating/samegenres/<int:movieID>')
 
-@app.route("/")
+@app.route("/movies") #TODO: seperate display for swagger API and 
 def movieTable():
     global conn
     if not conn:
