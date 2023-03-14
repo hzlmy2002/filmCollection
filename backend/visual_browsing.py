@@ -49,9 +49,9 @@ class GetMoviesData(Resource):
     @api.expect(parser)
     def get(self):
         args = parser.parse_args()
-        command = ("SELECT Movies.movieID, Movies.title, Movies.date, Genres.genre, Movies.rotten_tomatoes_rating "
+        command = ("SELECT DISTINCT Movies.movieID, Movies.title, Movies.date, Movies.rotten_tomatoes_rating "
                    "FROM Movies "
-                   "RIGHT JOIN Movie_Genres ON Movies.movieID = Movie_Genres.movieID "
+                   "LEFT JOIN Movie_Genres ON Movies.movieID = Movie_Genres.movieID "
                    "LEFT JOIN Genres ON Movie_Genres.genreID = Genres.genreID ")
         if args.genre is not None:
             command += f"WHERE Genres.genre = '{args.genre}' "
