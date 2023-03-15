@@ -36,14 +36,17 @@ class Format_result():
 
 class GetAllGenres(Resource):
     def get(self):
+        payload = {}
         print("inside genres")
         command = ("SELECT Genres.genre FROM Genres")
         result = [row[0] for row in SqlExecutor().execute_sql(command)]
-        return result
+        payload["all_genres"] = result
+        return payload
 
 
 class GetMovieGenres(Resource):
     def get(self, movieID):
+        payload = {}
         command = ("SELECT Genres.genre "
                    "FROM Movies, Movie_Genres, Genres "
                    "WHERE Movies.movieID = Movie_Genres.movieID AND Movie_Genres.genreID = Genres.genreID ")
@@ -99,7 +102,7 @@ class GetMoviesData(Resource):
             else:
                 movie["date"] = ""
             movie["genre"] = GetMovieGenres().get(movie["movieID"])
-        print(result_dict)
+        #print(result_dict)
         return result_dict
 
 

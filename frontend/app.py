@@ -35,16 +35,22 @@ def index():
         table_data.table_data = requests.get('http://' + 'backend:5000' + '/api/v1/view/movie-data?sorting_asc=true&sorting_field=title').json()
         print("loaded movie data")
         table_data.loaded = True
-        table_data.genres = requests.get('http://' + 'backend:5000' + '/api/v1/view/all-genres')
+        table_data.genres = requests.get('http://' + 'backend:5000' + '/api/v1/view/all-genres').json()
 
-    movie_pl = table_data.table_data
     #print(movie_pl)
 
     #get arguments from frontend
     page_num = request.args.get('page_num', 1, type=int)
+
+    #genre filter
+    genre = request.args.get('filter_genre', None, type=str)
+    if(genre):
+        table_data.table_data = requests.get('http://' + 'backend:5000' + '/api/v1/view/movie-data?sorting_asc=true&sorting_field=title&genre=' + genre).json()
+
     # sorting_asc = request.args.get('sorting_asc', 1, type=bool)
     # sorting_field = request.args.get('sorting_field', 1, type=str)
-    # genre = request.args.get('genre', 1, type=str)
+    
+    movie_pl = table_data.table_data
 
     #pagination
     global pagination
@@ -54,7 +60,8 @@ def index():
     pagination.end_index = pagination.start_index + pagination.data_rows_displayed - 1
     pagination.pages = pagination.total_data_rows // pagination.data_rows_displayed
 
-    return render_template('test.html', page=pagination, movies=movie_pl[pagination.start_index:pagination.end_index], genres=table_data.genres)
+
+    return render_template('test.html', page=pagination, movies=movie_pl[pagination.start_index:pagination.end_index], genres=table_data.genres["all_genres"])
 
 @app.route('/filter', methods=['GET'])
 def filter():
