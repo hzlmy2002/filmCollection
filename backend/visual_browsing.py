@@ -36,6 +36,7 @@ class Format_result():
 
 class GetAllGenres(Resource):
     def get(self):
+        print("inside genres")
         command = ("SELECT Genres.genre FROM Genres")
         result = [row[0] for row in SqlExecutor().execute_sql(command)]
         return result
@@ -64,9 +65,11 @@ parser.add_argument('from_rating', type=int)
 parser.add_argument('to_rating', type=int)
 
 
+
 class GetMoviesData(Resource):
     @api.expect(parser)
     def get(self):
+        print("inside get movie data api")
         args = parser.parse_args()
         command = ("SELECT DISTINCT Movies.movieID, Movies.title, Movies.date, Movies.rotten_tomatoes_rating "
                    "FROM Movies "
@@ -96,6 +99,7 @@ class GetMoviesData(Resource):
             else:
                 movie["date"] = ""
             movie["genre"] = GetMovieGenres().get(movie["movieID"])
+        print(result_dict)
         return result_dict
 
 

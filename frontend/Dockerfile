@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
 RUN apt update && apt install -y python3 python3-pip mysql-client libmysqlclient-dev
-EXPOSE 5000
+EXPOSE 8000
 
 COPY . /flask
 
