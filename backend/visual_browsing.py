@@ -16,6 +16,7 @@ from flask_restx import Resource, inputs, Api
 
 
 class GetAllGenres(Resource):
+    # Get a list of all the genres
     def get(self):
         command = ("SELECT Genres.genre FROM Genres")
         result = [row[0] for row in SqlExecutor().execute_sql(command)]
@@ -23,6 +24,7 @@ class GetAllGenres(Resource):
 
 
 class GetMovieGenres(Resource):
+    # Get a list of genres for a movie
     def get(self, movieID):
         command = ("SELECT Genres.genre "
                    "FROM Movies, Movie_Genres, Genres "
@@ -46,6 +48,7 @@ parser.add_argument('to_rating', type=int)
 
 
 class GetMoviesData(Resource):
+    # Get details of movies after filtering by date, genre and rating and sorting.
     @api.expect(parser)
     def get(self):
         args = parser.parse_args()
@@ -70,13 +73,13 @@ class GetMoviesData(Resource):
 
         result = SqlExecutor().execute_sql(command)
         result_dict = SqlExecutor().convert_to_dict(
-            result, ["movieID", "title", "date", "genre", "rotten_tomatoes_rating"])
+            result, ["movieID", "title", "date", "rotten_tomatoes_rating"])
         for movie in result_dict:
             if movie["date"] is not None:
                 movie["date"] = movie["date"].strftime("%m/%d/%Y")
             else:
                 movie["date"] = ""
-            movie["genre"] = GetMovieGenres().get(movie["movieID"])
+            movie["genres"] = GetMovieGenres().get(movie["movieID"])
         return result_dict
 
 
