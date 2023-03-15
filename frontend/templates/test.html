@@ -155,13 +155,17 @@
                             <th>#</th>
                             <th>Title <i class="fa fa-sort"></i></th>
                             <th>Date 
-                                <select class="selectpicker" data-live-search="true">
-                                    <option selected="selected"> Filter </option>
-                                </select> 
-                                <select class="selectpicker" data-live-search="true">
-                                    <option selected="selected"> Filter </option>
-                                </select>                     
-                            /th>
+                                <form action="/" method="get">
+                                    <select class="selectpicker" data-live-search="true" name="year_range">
+                                        <option selected="selected"> Filter </option>
+                                        <option value="before">Before year</option>
+                                        <option value="after">After year</option>
+                                        <option value="between">Between years</option>
+                                    </select>
+                                    <input type="text" id="option2" name="year">
+                                    <input type="submit" value="Apply" style="font-size:10px; height:20px; width:50px">         
+                                </form>                    
+                            </th>
                             <th>Ratings <i class="fa fa-sort"></i></th>
                             <th class="text-center">Genres 
                                 <form action="/" method="get">
@@ -171,7 +175,7 @@
                                         <option value={{genre}}>{{genre}}</option>
                                         {% endfor %}
                                     </select>
-                                    <input type="submit" value="Apply">         
+                                    <input type="submit" value="Apply" style="font-size:10px; height:20px; width:50px">         
                                 </form>                         
                             </th>
                             <th>Actions</th>

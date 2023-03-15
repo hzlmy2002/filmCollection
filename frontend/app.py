@@ -30,6 +30,7 @@ table_data = TableLoader()
 @app.route('/', methods=['GET'])
 def index():
 
+    # intial loading
     if(table_data.loaded == False):
         print("getting movie data...")
         table_data.table_data = requests.get('http://' + 'backend:5000' + '/api/v1/view/movie-data?sorting_asc=true&sorting_field=title').json()
@@ -46,6 +47,19 @@ def index():
     genre = request.args.get('filter_genre', None, type=str)
     if(genre):
         table_data.table_data = requests.get('http://' + 'backend:5000' + '/api/v1/view/movie-data?sorting_asc=true&sorting_field=title&genre=' + genre).json()
+
+    #date filter 
+    year_range = request.args.get('year_range', None, type=str)
+    year = request.args.get('year', None, type=str)
+    if(year_range and year): # both fields have to present for date filter to work
+        query_str = 'http://' + 'backend:5000' + '/api/v1/view/movie-data?sorting_asc=true&sorting_field=title'
+        if(year_range == "before"):
+            query_str += '&end_year='
+        elif(year_range == "after"):
+            query_str += '&start_year='
+        query_str += year
+        table_data.table_data = requests.get(query_str).json()
+
 
     # sorting_asc = request.args.get('sorting_asc', 1, type=bool)
     # sorting_field = request.args.get('sorting_field', 1, type=str)
