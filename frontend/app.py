@@ -41,7 +41,7 @@ def index():
     #print(movie_pl)
 
     #get arguments from frontend
-    page_num = request.args.get('page_num', 1, type=int)
+    page_num = request.args.get('page_num', 0, type=int)
 
     #genre filter
     genre = request.args.get('filter_genre', None, type=str)
@@ -54,15 +54,33 @@ def index():
     if(year_range and year): # both fields have to present for date filter to work
         query_str = 'http://' + 'backend:5000' + '/api/v1/view/movie-data?sorting_asc=true&sorting_field=title'
         if(year_range == "before"):
-            query_str += '&end_year='
+            query_str = query_str +'&end_year=' + year
         elif(year_range == "after"):
-            query_str += '&start_year='
-        query_str += year
+            query_str = query_str + '&start_year=' + year
+        elif(year_range == "at_year"):
+            query_str = query_str + '&start_year=' + year + '&end_year=' + year
+        elif(year_range == "between"):
+            start_year = None
+            end_year = None
+            other_year = request.args.get('year_2', None, type=str)
+            if(int(other_year) >= int(year)):
+                start_year = year
+                end_year = other_year
+            else:
+                start_year = other_year
+                end_year = year
+            query_str = query_str + '&end_year=' + end_year + '&start_year=' + start_year
+        
         table_data.table_data = requests.get(query_str).json()
 
 
-    # sorting_asc = request.args.get('sorting_asc', 1, type=bool)
-    # sorting_field = request.args.get('sorting_field', 1, type=str)
+
+    #sorting
+    sorting_field = request.args.get('sort', None, type=str)
+    sorting_asc = request.args.get('order', None, type=str)
+    if(sorting_field and sorting_asc):
+        query_str = 'http://' + 'backend:5000' + '/api/v1/view/movie-data?sorting_asc=' + sorting_asc + "&sorting_field=" + sorting_field
+        table_data.table_data = requests.get(query_str).json()
     
     movie_pl = table_data.table_data
 

@@ -127,12 +127,6 @@
         font-size: 95%;
     }    
 </style>
-<script>
-    $(document).ready(function(){
-        $('[data-toggle="tooltip"]').tooltip();
-    });
-
-</script>
 </head>
 <body>
     <div class="container">
@@ -153,20 +147,50 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Title <i class="fa fa-sort"></i></th>
+                            <th>Title 
+                            <div>
+                                <a id="sort-link" href='/?sort=title&order=true' class="btn btn-outline-secondary" style="color:black; height:30px; width:30px">
+                                    <i class="fa fa-caret-square-o-up" aria-hidden="true"></i>
+                                </a>
+                                <a id="sort-link" href='/?sort=title&order=false' class="btn btn-outline-secondary" style="color:black; height:30px; width:30px">
+                                    <i class="fa fa-caret-square-o-down" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                            </th>
                             <th>Date 
                                 <form action="/" method="get">
-                                    <select class="selectpicker" data-live-search="true" name="year_range">
+                                    <select id="year-options" class="selectpicker" data-live-search="true" name="year_range">
                                         <option selected="selected"> Filter </option>
                                         <option value="before">Before year</option>
                                         <option value="after">After year</option>
+                                        <option value="at_year">At year</option>
                                         <option value="between">Between years</option>
                                     </select>
-                                    <input type="text" id="option2" name="year">
+                                    <input type="text" placeholder="Input year" id="option2" name="year" style="font-size:12px">
+                                    <div id="other-year" style="display:none;">
+                                        <input type="text" placeholder="Other year" id="option2" name="year_2" style="font-size:12px">
+                                    </div>
                                     <input type="submit" value="Apply" style="font-size:10px; height:20px; width:50px">         
-                                </form>                    
+                                </form>
+                                <div>
+                                    <a id="sort-link" href='/?sort=date&order=true' class="btn btn-outline-secondary" style="color:black; height:30px; width:30px">
+                                        <i class="fa fa-caret-square-o-up" aria-hidden="true"></i>
+                                    </a>
+                                    <a id="sort-link" href='/?sort=date&order=false' class="btn btn-outline-secondary" style="color:black; height:30px; width:30px">
+                                        <i class="fa fa-caret-square-o-down" aria-hidden="true"></i>
+                                    </a>
+                                </div>                    
                             </th>
-                            <th>Ratings <i class="fa fa-sort"></i></th>
+                            <th>Ratings 
+                            <div>
+                                <a id="sort-link" href='/?sort=rotten_tomatoes_rating&order=true' class="btn btn-outline-secondary" style="color:black; height:30px; width:30px">
+                                    <i class="fa fa-caret-square-o-up" aria-hidden="true"></i>
+                                </a>
+                                <a id="sort-link" href='/?sort=rotten_tomatoes_rating&order=false' class="btn btn-outline-secondary" style="color:black; height:30px; width:30px">
+                                    <i class="fa fa-caret-square-o-down" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                            </th>
                             <th class="text-center">Genres 
                                 <form action="/" method="get">
                                     <select class="selectpicker" data-live-search="true" name="filter_genre">
@@ -208,6 +232,20 @@
                 </div>
             </div>
         </div>        
-    </div>     
+    </div>  
+    <script>
+        // show second input year for year filter
+        var selectElement = document.getElementById("year-options");
+        var otherOptionDiv = document.getElementById("other-year");
+        selectElement.addEventListener("change", function() {
+          if (selectElement.value === "between") {
+            otherOptionDiv.style.display = "block";
+          } else {
+            otherOptionDiv.style.display = "none";
+          }
+        });
+
+    
+    </script>   
 </body>
 </html>
