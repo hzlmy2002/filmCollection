@@ -18,8 +18,7 @@ class analyseRatingByGenresAPI(Resource):
 class analyseRatingSameGenresAPI(Resource):
     def get(self,movieID):
         ar=analyseRating(dbConnection)
-        return ar.getSameGenreRating(movieID)
-    
+        return ar.getSameGenreRating(movieID)    
 class analyseRatingGroupGenresAPI(Resource):
     def put(self,movieID):
         # put request body: genres=genre1,genre2,genre3
@@ -34,8 +33,7 @@ class analyseRatingGroupGenresAPI(Resource):
             return ar.getUserGenreRating(movieID,genresList)
         else:
             return {"error":"genres not found in request body"},400
-        
-
+            
 class analyseRating():
     def __init__(self,conn) -> None:
         self.conn = conn

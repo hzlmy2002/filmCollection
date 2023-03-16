@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block body %}
+<br><br>
+  <table id="data" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Genre</th>
+        <th>Ratings</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in range(data_rows) %}
+        <tr>
+          <td>{{ movies[i].Title }}</td>
+          <td>{{ movies[i].Date }}</td>
+          <td>{{ movies[i].Genre }}</td>
+          <td>{{ movies[i].Rotten_tomatoes_rating }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    $(document).ready(function () {
+      $('#data').DataTable();
+    });
+  </script>
+{% endblock %}
