@@ -3,27 +3,52 @@ from sql_executor import SqlExecutor
 from flask import Flask
 from flask_restx import Resource, inputs, Api
 
-
-# class TableSorting(TypedDict):
-#     asc: bool
-#     field: str
-
-
-# class TableFilters(TypedDict):
-#     date: Tuple[int, int]
-#     genre: str
-#     rating: Tuple[float, float]
+class Format_result():
+    def format_genre(self, result, result_dict):
+        genre_str = ""
+        count = 0
+        for i in range(len(result)):
+            row = result[i]
+            # genre_str += row[2]
+            if(i != len(result)-1):
+                next_row = result[i+1]
+                if(row[0] == next_row[0]): #format multiple genres
+                    if(count == 0):
+                        genre_str += row[2]
+                    temp = " | " + next_row[2]
+                    genre_str += temp
+                    count += 1
+                else:
+                    if(count == 0): #only one genre
+                        row_dict = {"Title": row[0], "Date": row[1], "Genre": row[2], "Rotten_tomatoes_rating": row[3]}
+                    else:
+                        row_dict = {"Title": row[0], "Date": row[1], "Genre": genre_str, "Rotten_tomatoes_rating": row[3]}
+                    result_dict.append(row_dict)
+                    genre_str = ""
+                    count = 0
+            else:
+                if(count == 0):
+                    row_dict = {"Title": row[0], "Date": row[1], "Genre": genre_str, "Rotten_tomatoes_rating": row[3]}
+                else:
+                    row_dict = {"Title": row[0], "Date": row[1], "Genre": row[2], "Rotten_tomatoes_rating": row[3]}
+                result_dict.append(row_dict)
 
 
 class GetAllGenres(Resource):
+    # Get a list of all the genres
     def get(self):
+        payload = {}
+        print("inside genres")
         command = ("SELECT Genres.genre FROM Genres")
         result = [row[0] for row in SqlExecutor().execute_sql(command)]
-        return result
+        payload["all_genres"] = result
+        return payload
 
 
 class GetMovieGenres(Resource):
+    # Get a list of genres for a movie
     def get(self, movieID):
+        payload = {}
         command = ("SELECT Genres.genre "
                    "FROM Movies, Movie_Genres, Genres "
                    "WHERE Movies.movieID = Movie_Genres.movieID AND Movie_Genres.genreID = Genres.genreID ")
@@ -45,9 +70,12 @@ parser.add_argument('from_rating', type=int)
 parser.add_argument('to_rating', type=int)
 
 
+
 class GetMoviesData(Resource):
+    # Get details of movies after filtering by date, genre and rating and sorting.
     @api.expect(parser)
     def get(self):
+        print("inside get movie data api")
         args = parser.parse_args()
         command = ("SELECT DISTINCT Movies.movieID, Movies.title, Movies.date, Movies.rotten_tomatoes_rating "
                    "FROM Movies "
@@ -70,23 +98,14 @@ class GetMoviesData(Resource):
 
         result = SqlExecutor().execute_sql(command)
         result_dict = SqlExecutor().convert_to_dict(
-            result, ["movieID", "title", "date", "genre", "rotten_tomatoes_rating"])
+            result, ["movieID", "title", "date", "rotten_tomatoes_rating"])
         for movie in result_dict:
             if movie["date"] is not None:
                 movie["date"] = movie["date"].strftime("%m/%d/%Y")
             else:
                 movie["date"] = ""
-            movie["genre"] = GetMovieGenres().get(movie["movieID"])
+            movie["genres"] = GetMovieGenres().get(movie["movieID"])
         return result_dict
 
 
-# filters: TableFilters = {
-#     'date': (1988, 2000),
-#     'genre': 'Action',
-#     'rating': (80, 90)
-# }
-# sorting: TableSorting = {
-#     'asc': False,
-#     'field': 'title'
-# }
-# VisualBrowsing().get_films_data(filters, sorting)
+
