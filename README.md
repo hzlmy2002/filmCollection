@@ -6,7 +6,7 @@
 ```
 $ docker compose up --build -d
 
-
+```
 ## Expected result
 
 Listing containers should show three containers running and the port mapping as below:
