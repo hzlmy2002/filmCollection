@@ -73,6 +73,31 @@ def index():
         
         table_data.table_data = requests.get(query_str).json()
 
+    #ratings filter
+    rating_range = request.args.get('rating_range', None, type=str)
+    rating = request.args.get('rating_1', None, type=str)
+    if(rating_range and rating): # both fields have to present for date filter to work
+        query_str = 'http://' + 'backend:5000' + '/api/v1/view/movie-data?sorting_asc=true&sorting_field=rotten_tomatoes_rating'
+        if(year_range == "lower"):
+            query_str = query_str +'&to_rating=' + rating
+        elif(year_range == "higher"):
+            query_str = query_str + '&from_rating=' + rating
+        elif(year_range == "at_rating"):
+            query_str = query_str + '&to_rating=' + rating + '&from_rating=' + rating
+        elif(year_range == "between"):
+            start_rating = None
+            end_rating = None
+            other_rating = request.args.get('rating_2', None, type=str)
+            if(int(other_rating) >= int(rating)):
+                start_rating = rating
+                end_rating = other_rating
+            else:
+                start_rating = other_rating
+                end_rating = rating
+            query_str = query_str + '&from_rating=' + start_rating + '&to_rating=' + end_rating
+        
+        table_data.table_data = requests.get(query_str).json()
+
 
 
     #sorting
@@ -92,7 +117,7 @@ def index():
     pagination.end_index = pagination.start_index + pagination.data_rows_displayed - 1
     pagination.pages = pagination.total_data_rows // pagination.data_rows_displayed
 
-
+    print(table_data.genres["all_genres"])
     return render_template('test.html', page=pagination, movies=movie_pl[pagination.start_index:pagination.end_index], genres=table_data.genres["all_genres"])
 
 @app.route('/filter', methods=['GET'])

@@ -182,6 +182,20 @@
                                 </div>                    
                             </th>
                             <th>Ratings 
+                            <form action="/" method="get">
+                                <select id="rating-options" class="selectpicker" data-live-search="true" name="rating_range">
+                                    <option selected="selected"> Filter </option>
+                                    <option value="lower">Lower than</option>
+                                    <option value="higher">Higher than</option>
+                                    <option value="at_rating">At rating</option>
+                                    <option value="between_rating">Between rating</option>
+                                </select>
+                                <input type="text" placeholder="Input rating" id="option_rating" name="rating_1" style="font-size:12px">
+                                <div id="other-rating" style="display:none;">
+                                    <input type="text" placeholder="Other rating" id="option_rating" name="rating_2" style="font-size:12px">
+                                </div>
+                                <input type="submit" value="Apply" style="font-size:10px; height:20px; width:50px">         
+                            </form>
                             <div>
                                 <a id="sort-link" href='/?sort=rotten_tomatoes_rating&order=true' class="btn btn-outline-secondary" style="color:black; height:30px; width:30px">
                                     <i class="fa fa-caret-square-o-up" aria-hidden="true"></i>
@@ -212,7 +226,7 @@
                             <td>{{ movie.title }}</td>
                             <td>{{ movie.date }}</td>
                             <td>{{ movie.rotten_tomatoes_rating }}</td>
-                            <td>{{ movie.genre }}</td>
+                            <td>{{ movie.genres }}</td>
                             <td>
                                 <a href="#" class="view" title="View" data-toggle="tooltip"><i class="material-icons">&#xE417;</i></a>
                             </td>
@@ -237,6 +251,16 @@
         // show second input year for year filter
         var selectElement = document.getElementById("year-options");
         var otherOptionDiv = document.getElementById("other-year");
+        selectElement.addEventListener("change", function() {
+          if (selectElement.value === "between") {
+            otherOptionDiv.style.display = "block";
+          } else {
+            otherOptionDiv.style.display = "none";
+          }
+        });
+
+        var selectElementRating = document.getElementById("rating-options");
+        var otherOptionDiv = document.getElementById("other-rating");
         selectElement.addEventListener("change", function() {
           if (selectElement.value === "between") {
             otherOptionDiv.style.display = "block";

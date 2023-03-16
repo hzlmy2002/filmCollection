@@ -35,6 +35,7 @@ class Format_result():
 
 
 class GetAllGenres(Resource):
+    # Get a list of all the genres
     def get(self):
         payload = {}
         print("inside genres")
@@ -45,6 +46,7 @@ class GetAllGenres(Resource):
 
 
 class GetMovieGenres(Resource):
+    # Get a list of genres for a movie
     def get(self, movieID):
         payload = {}
         command = ("SELECT Genres.genre "
@@ -70,6 +72,7 @@ parser.add_argument('to_rating', type=int)
 
 
 class GetMoviesData(Resource):
+    # Get details of movies after filtering by date, genre and rating and sorting.
     @api.expect(parser)
     def get(self):
         print("inside get movie data api")
@@ -95,14 +98,13 @@ class GetMoviesData(Resource):
 
         result = SqlExecutor().execute_sql(command)
         result_dict = SqlExecutor().convert_to_dict(
-            result, ["movieID", "title", "date", "genre", "rotten_tomatoes_rating"])
+            result, ["movieID", "title", "date", "rotten_tomatoes_rating"])
         for movie in result_dict:
             if movie["date"] is not None:
                 movie["date"] = movie["date"].strftime("%m/%d/%Y")
             else:
                 movie["date"] = ""
-            movie["genre"] = GetMovieGenres().get(movie["movieID"])
-        #print(result_dict)
+            movie["genres"] = GetMovieGenres().get(movie["movieID"])
         return result_dict
 
 
