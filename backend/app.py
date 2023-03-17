@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 conn = None
 
-api = Api(app, doc='/api/docs')
+api = Api(app)
 
 # namespace of the API
 api_ns = api.namespace('api', description='Example')
