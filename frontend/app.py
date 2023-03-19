@@ -1,6 +1,7 @@
 import requests
 from flask import Flask, render_template, request, make_response, redirect, url_for
 import matplotlib.pyplot as plt
+from io import BytesIO
 
 app = Flask(__name__)
 # api = Api(app, doc='/api/docs')
@@ -133,15 +134,44 @@ def filter():
     pass
 
 
+def draw_pie_chart(result):
+    labels_num = 20 if len(result) > 20 else len(result)
+    labels = []
+    values = []
+    for i in range(labels_num):
+        if i == 19:
+            labels.append("Other")
+            values.append(100 - sum(values))
+        else:
+            labels.append(result[i]["tag_name"])
+            values.append(result[i]["percentage"])
+
+    fig, ax = plt.subplots(figsize=(12, 12))
+    ax.pie(values, labels=labels, autopct='%1.1f%%',
+           pctdistance=0.9)
+    legend_labels = [f'{l}, {s:1.1f}%' for l, s in zip(labels, values)]
+    ax.legend(labels=legend_labels)
+
+    chart = BytesIO()
+    plt.savefig(chart, format='png')
+    chart.seek(0)
+
+    return chart
+
+
 @app.route('/tag-analysis', methods=['GET', 'POST'])
 def tag_analysis():
     genres = requests.get('http://backend:5000/api/v1/view/all-genres').json()
     if request.method == 'POST':
-        analyse_by = request.form['analyse-by']
-        analyse_options = request.form['analyse-options']
+        analyse_by = request.form.get('analyse-by')
+        analyse_options = request.form.get('analyse-options')
         url = f'http://backend:5000/api/v1/tags/{analyse_by}/{analyse_options}'
         result = requests.get(url).json()
-        print(result)
+        chart = draw_pie_chart(result)
+        response = make_response(chart.getvalue())
+        response.headers['Content-Type'] = 'image/png'
+        return response
+        return render_template('tag_analysis.html', genres=genres["all_genres"], chart=chart)
     return render_template('tag_analysis.html', genres=genres["all_genres"])
 
 

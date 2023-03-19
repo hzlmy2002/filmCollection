@@ -15,7 +15,6 @@ class GetTagsByGenre(Resource):
         result = SqlExecutor().execute_sql(command)
         result_dict = SqlExecutor().convert_to_dict(
             result, ["tag_name", "count", "percentage"])
-        print(result_dict)
         for tag in result_dict:
             tag["percentage"] = float(tag["percentage"])
         return result_dict
@@ -34,7 +33,6 @@ class GetTagsByRating(Resource):
         result = SqlExecutor().execute_sql(command)
         result_dict = SqlExecutor().convert_to_dict(
             result, ["tag_name", "count", "percentage"])
-        print(result_dict)
         for tag in result_dict:
             tag["percentage"] = float(tag["percentage"])
         return result_dict

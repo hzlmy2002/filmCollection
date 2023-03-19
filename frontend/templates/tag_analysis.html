@@ -15,7 +15,7 @@
 <body>
     <div class="center">
         <h1>Tag Analysis</h1>
-        <form method="post">
+        <form method="POST">
             <label for="analyse-by">Analyse tags by:</label>
             <select id="analyse-by" name="analyse-by">
                 <option value="genre">Genre</option>
@@ -27,6 +27,10 @@
             <br><br>
             <input type="submit" value="Analyse">
         </form>
+
+        {% if chart %}
+        <img src="{{ chart }}">
+        {% endif %}
     </div>
     <script>
         var analyseBySelect = document.getElementById("analyse-by");
