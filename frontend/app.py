@@ -108,12 +108,14 @@ def index():
         table_data.table_data = requests.get(query_str).json()
 
     #search based on title, director and actor
-    search_value = request.args.get('search-choice', None, type=str)
+    search_column = request.args.get('search-choice', None, type=str)
+    search_value = request.args.get('search-value', None, type=str)
     if(search_value):
-        if(search_value == 'title'):
+        query_str = 'http://' + 'backend:5000' + '/api/v1/search/'
+        if(search_column == 'title'):
             pass
             
-        elif(search_value == 'director'):
+        elif(search_column == 'director'):
             pass
         elif(search_value == 'actor'):
             pass

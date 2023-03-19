@@ -55,3 +55,4 @@ class MovieSearcherV2(Resource):
             movie["actors"] = GetMovieActors().get(movie["movieID"])
             movie["genres"] = GetMovieGenres().get(movie["movieID"])
         return result_dict
+    
