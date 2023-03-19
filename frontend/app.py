@@ -136,10 +136,12 @@ def filter():
 @app.route('/tag-analysis', methods=['GET', 'POST'])
 def tag_analysis():
     genres = requests.get('http://backend:5000/api/v1/view/all-genres').json()
-    # if request.method == 'POST':
-    #     analyse_by = request.form['analyse-by']
-    #     analyse_options = request.form['analyse-options']
-
+    if request.method == 'POST':
+        analyse_by = request.form['analyse-by']
+        analyse_options = request.form['analyse-options']
+        url = f'http://backend:5000/api/v1/tags/{analyse_by}/{analyse_options}'
+        result = requests.get(url).json()
+        print(result)
     return render_template('tag_analysis.html', genres=genres["all_genres"])
 
 
