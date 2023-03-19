@@ -4,7 +4,7 @@ from flask_restx import Api, Resource
 from uc12 import ViewTitle, ViewDetails
 from uc3 import analyseGeneralRatingAPI, analyseRatingByGenresAPI, analyseRatingSameGenresAPI
 from visual_browsing import GetAllGenres, GetMovieGenres, GetMoviesData
-from tag_analysis import GetTagsByGenre
+from tag_analysis import GetTagsByGenre, GetTagsByRating
 
 from uc3 import analyseGeneralRatingAPI, analyseRatingByGenresAPI, analyseRatingSameGenresAPI, analyseRatingGroupGenresAPI
 
@@ -43,6 +43,7 @@ api.add_resource(analyseRatingGroupGenresAPI,
 
 # UC4
 api.add_resource(GetTagsByGenre, '/api/v1/tags/genre/<string:genre>')
+api.add_resource(GetTagsByRating, '/api/v1/tags/rating/<int:rating>')
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 import requests
 from flask import Flask, render_template, request, make_response, redirect, url_for
+import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 # api = Api(app, doc='/api/docs')
