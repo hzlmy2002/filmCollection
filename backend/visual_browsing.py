@@ -42,7 +42,7 @@ class Format_result():
 
 class GetAllGenres(Resource):
     # Get a list of all the genres
-    @cache.cached(timeout=3600, query_string=True)
+    #@cache.cached(timeout=3600, query_string=True)
     def get(self):
         payload = {}
         print("inside genres")
@@ -54,7 +54,7 @@ class GetAllGenres(Resource):
 
 class GetMovieGenres(Resource):
     # Get a list of genres for a movie
-    @cache.cached(timeout=3600, query_string=True)
+    #@cache.cached(timeout=3600, query_string=True)
     def get(self, movieID):
         payload = {}
         command = ("SELECT Genres.genre "
@@ -85,9 +85,8 @@ parser.add_argument('to_rating', type=int)
 class GetMoviesData(Resource):
     # Get details of movies after filtering by date, genre and rating and sorting.
     @api.expect(parser)
-    @cache.cached(timeout=3600, query_string=True)
+    #@cache.cached(timeout=3600, query_string=True)
     def get(self):
-        print("inside get movie data api")
         args = parser.parse_args()
         params=[]
         command = ("SELECT DISTINCT Movies.movieID, Movies.title, Movies.date, Movies.rotten_tomatoes_rating "
@@ -95,7 +94,7 @@ class GetMoviesData(Resource):
                    "LEFT JOIN Movie_Genres ON Movies.movieID = Movie_Genres.movieID "
                    "LEFT JOIN Genres ON Movie_Genres.genreID = Genres.genreID ")
         if args.genre is not None:
-            command += f"WHERE Genres.genre = '%s' "
+            command += f"WHERE Genres.genre = %s "
             params.append(args.genre)
         else:
             command += f"WHERE TRUE "
@@ -112,10 +111,13 @@ class GetMoviesData(Resource):
             command += f"AND Movies.rotten_tomatoes_rating <= %s "
             params.append(args.to_rating)
         sorting_mode = 'ASC' if args.sorting_asc else 'DESC'
-        params.append(args.sorting_field)
-        command += f" ORDER BY %s {sorting_mode} "
+        sorting_field = args.sorting_field
+        if sorting_field not in ["movieID", "title", "content", "date", "rotten_tomatoes_rating"]:
+            sorting_field="rotten_tomatoes_rating"
+        command += f" ORDER BY {sorting_field} {sorting_mode} "
         cursor=dbConnection.cursor()
         print(command)
+        print(params)
         cursor.execute(command,tuple(params))
         result = cursor.fetchall()
         result_dict = SqlExecutor().convert_to_dict(

@@ -25,7 +25,6 @@ class GetMovieActors(Resource):
 
 class MovieSearcher(Resource):
     @cache.cached(timeout=3600, query_string=True)
-    ### Don't know why it got index out of range
     def get(self, column, value):
         command = ("SELECT DISTINCT Movies.movieID, Movies.title, Movies.date, Movies.rotten_tomatoes_rating "
                    "FROM Movies "
