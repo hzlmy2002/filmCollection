@@ -202,7 +202,7 @@ for rate in person_ratings_csv:
     if (userID in person_data_userID) and (movieID in movies_dict):
         if userID not in person_ratings_IDs:
             person_ratings_IDs[userID] = []
-        if (userID in person_ratings_IDs) and (movieID not in person_ratings_IDs[userID]) and (len(person_ratings_IDs[userID]) < 100): # mySQL cannot support too many rows
+        if (userID in person_ratings_IDs) and (movieID not in person_ratings_IDs[userID]):
             person_ratings_IDs[userID].append(movieID) # personality-ratings.csv contains duplicate lines
             person_ratings_values.append([userID_format, movieID, timestamp_format, rating_format])
 
