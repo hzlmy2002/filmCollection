@@ -61,7 +61,7 @@ class MovieSearcherV2(Resource):
         command += f"WHERE LOWER(Movies.title) LIKE \"%s\""
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
-        cursor.execute(command, (f'%{movieTitle}%',))
+        cursor.execute(command, (f'%{movieTitle}%'))
         result = cursor.fetchall()
         cursor.close()
         result_dict = SqlExecutor().convert_to_dict(
