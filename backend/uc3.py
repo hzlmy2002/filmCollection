@@ -3,19 +3,26 @@ from flask import request
 from flask_restx import Resource
 import numpy as np
 from flask_restx import reqparse
+from flask_caching import Cache
+from __main__ import app
 
+cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
+cache.init_app(app)
 
 class analyseGeneralRatingAPI(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self,movieID):
         ar=analyseRating(dbConnection)
         return ar.getUserRating(movieID)
     
 class analyseRatingByGenresAPI(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self,movieID,genreID):
         ar=analyseRating(dbConnection)
         return ar.getUserGenreRating(movieID,[genreID])
     
 class analyseRatingSameGenresAPI(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self,movieID):
         ar=analyseRating(dbConnection)
         return ar.getSameGenreRating(movieID)    
@@ -49,6 +56,7 @@ class analyseRating():
         cur=self.conn.cursor()
         cur.execute(statm)
         result=cur.fetchall()
+        cur.close()
         for row in result:
             if row[1]>=4:
                 self.friendly_user.append(row[0])
@@ -63,6 +71,7 @@ class analyseRating():
         cur=self.conn.cursor()
         cur.execute(statm,(", ".join(tmp),))
         result=cur.fetchall()
+        cur.close()
         for row in result:
             if row[1]>=4:
                 self.friendly_user.append(row[0])
@@ -76,6 +85,7 @@ class analyseRating():
         cur=self.conn.cursor()
         cur.execute(statm)
         result=cur.fetchall()
+        cur.close()
         result=[row[0] for row in result]
         result.sort()
         lower,upper=np.percentile(result,[25,75])
@@ -114,6 +124,7 @@ class analyseRating():
         tmp=[str(i) for i in self.inactiveUser]
         cur.execute(statm,(movieID,", ".join(tmp)))
         result=cur.fetchone()
+        cur.close()
         if result[0]:
             inactive_user_rating=result[0]
         return {"friendly_user_rating":friendly_user_rating,"unfriendly_user_rating":unfriendly_user_rating,"active_user_rating":active_user_rating,"inactive_user_rating":inactive_user_rating}
@@ -146,6 +157,7 @@ class analyseRating():
         tmp=[str(i) for i in self.inactiveUser]
         cur.execute(statm,(movieID,", ".join(tmp)))
         result=cur.fetchone()
+        cur.close()
         if result[0]:
             inactive_user_rating=result[0]
         return {"friendly_user_rating":friendly_user_rating,"unfriendly_user_rating":unfriendly_user_rating,"active_user_rating":active_user_rating,"inactive_user_rating":inactive_user_rating}
@@ -156,6 +168,7 @@ class analyseRating():
         cur=self.conn.cursor()
         cur.execute(statm,(movieID,))
         result=cur.fetchall()
+        cur.close()
         if result:
             result=[row[0] for row in result]
             return self.getUserGenreRating(movieID,result)
