@@ -42,10 +42,9 @@ class Format_result():
 
 class GetAllGenres(Resource):
     # Get a list of all the genres
-    #@cache.cached(timeout=3600, query_string=True)
+    @cache.cached(timeout=3600, query_string=True)
     def get(self):
         payload = {}
-        print("inside genres")
         command = ("SELECT Genres.genre FROM Genres")
         result = [row[0] for row in SqlExecutor().execute_sql(command)]
         payload["all_genres"] = result
@@ -54,13 +53,14 @@ class GetAllGenres(Resource):
 
 class GetMovieGenres(Resource):
     # Get a list of genres for a movie
-    #@cache.cached(timeout=3600, query_string=True)
+    @cache.cached(timeout=3600, query_string=True)
     def get(self, movieID):
         payload = {}
         command = ("SELECT Genres.genre "
                    "FROM Movies, Movie_Genres, Genres "
                    "WHERE Movies.movieID = Movie_Genres.movieID AND Movie_Genres.genreID = Genres.genreID ")
         command += f"AND Movies.movieID = \"%s\" "
+        dbConnection.reconnect()
         cursor=dbConnection.cursor()
         cursor.execute(command, (movieID,))
         result = [row[0] for row in cursor.fetchall()]
@@ -85,7 +85,7 @@ parser.add_argument('to_rating', type=int)
 class GetMoviesData(Resource):
     # Get details of movies after filtering by date, genre and rating and sorting.
     @api.expect(parser)
-    #@cache.cached(timeout=3600, query_string=True)
+    @cache.cached(timeout=3600, query_string=True)
     def get(self):
         args = parser.parse_args()
         params=[]
@@ -115,9 +115,8 @@ class GetMoviesData(Resource):
         if sorting_field not in ["movieID", "title", "content", "date", "rotten_tomatoes_rating"]:
             sorting_field="rotten_tomatoes_rating"
         command += f" ORDER BY {sorting_field} {sorting_mode} "
+        dbConnection.reconnect()
         cursor=dbConnection.cursor()
-        print(command)
-        print(params)
         cursor.execute(command,tuple(params))
         result = cursor.fetchall()
         result_dict = SqlExecutor().convert_to_dict(

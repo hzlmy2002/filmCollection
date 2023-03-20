@@ -53,6 +53,7 @@ class analyseRating():
         self.friendly_user.clear()
         self.unfriendly_user.clear()
         statm="select userID, avg(movielens_rating) from User_ratings group by userID"
+        self.conn.reconnect()
         cur=self.conn.cursor()
         cur.execute(statm)
         result=cur.fetchall()
@@ -68,6 +69,7 @@ class analyseRating():
         self.unfriendly_user.clear()
         tmp=[str(i) for i in genereIDList]
         statm="select User_ratings.userID, avg(User_ratings.movielens_rating) as rating from User_ratings,Movie_Genres where User_ratings.movieID=Movie_Genres.movieID and Movie_Genres.genreID in (%s) group by userID"
+        self.conn.reconnect()
         cur=self.conn.cursor()
         cur.execute(statm,(", ".join(tmp),))
         result=cur.fetchall()
@@ -82,6 +84,7 @@ class analyseRating():
         self.activeUser.clear()
         self.inactiveUser.clear()
         statm="select count(userID) from User_ratings group by userID"
+        self.conn.reconnect()
         cur=self.conn.cursor()
         cur.execute(statm)
         result=cur.fetchall()
@@ -105,6 +108,7 @@ class analyseRating():
         inactive_user_rating=-1
 
         statm="select avg(movielens_rating) from User_ratings where movieID=%s and userID in (%s)"
+        self.conn.reconnect()
         cur=self.conn.cursor()
         tmp=[str(i) for i in self.friendly_user]
         cur.execute(statm,(movieID,", ".join(tmp)))
@@ -138,6 +142,7 @@ class analyseRating():
         inactive_user_rating=-1
 
         statm="select avg(movielens_rating) from User_ratings where movieID=%s and userID in (%s)"
+        self.conn.reconnect()
         cur=self.conn.cursor()
         tmp=[str(i) for i in self.friendly_user]
         cur.execute(statm,(movieID,", ".join(tmp)))
@@ -165,6 +170,7 @@ class analyseRating():
 
     def getSameGenreRating(self,movieID):
         statm="select genreID from Movie_Genres where movieID=%s"
+        self.conn.reconnect()
         cur=self.conn.cursor()
         cur.execute(statm,(movieID,))
         result=cur.fetchall()
