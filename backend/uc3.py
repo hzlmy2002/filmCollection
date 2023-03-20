@@ -2,6 +2,7 @@ from conn import dbConnection
 from flask import request
 from flask_restx import Resource
 import numpy as np
+from flask_restx import reqparse
 
 
 class analyseGeneralRatingAPI(Resource):
@@ -17,8 +18,22 @@ class analyseRatingByGenresAPI(Resource):
 class analyseRatingSameGenresAPI(Resource):
     def get(self,movieID):
         ar=analyseRating(dbConnection)
-        return ar.getSameGenreRating(movieID)
+        return ar.getSameGenreRating(movieID)    
+class analyseRatingGroupGenresAPI(Resource):
+    def put(self,movieID):
+        # put request body: genres=genre1,genre2,genre3
+        # e.g. genres=1,2,3,10
 
+        parser = reqparse.RequestParser()
+        parser.add_argument('genres', action='split', type=int)
+        args=parser.parse_args()
+        genresList=args['genres']
+        if genresList:
+            ar=analyseRating(dbConnection)
+            return ar.getUserGenreRating(movieID,genresList)
+        else:
+            return {"error":"genres not found in request body"},400
+            
 class analyseRating():
     def __init__(self,conn) -> None:
         self.conn = conn
