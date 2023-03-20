@@ -17,43 +17,54 @@
         <h1>Tag Analysis</h1>
         <form method="POST">
             <label for="analyse-by">Analyse tags by:</label>
-            <select id="analyse-by" name="analyse-by">
+            <select id="analyse-by" name="analyse_by">
                 <option value="genre">Genre</option>
-                <option value="rating">Rating</option>
+                <option value="rating" {% if data['analyse_by']=='rating' %}selected{% endif %}>Rating</option>
             </select>
             <br><br>
             <label id="select-label" for="analyse-options">Genre:</label>
-            <select id="analyse-options" name="analyse-options"></select>
+            <select id="analyse-options" name="analyse_options"></select>
             <br><br>
             <input type="submit" value="Analyse">
         </form>
 
-        {% if chart %}
-        <img src="{{ chart }}">
+        {% if data['chart'] %}
+        <h1>Tag analysis by {{data['analyse_by']}}: {{data['analyse_options']}}</h1>
+        <h2>Percentage = <sup>No. of specific tag used with {{data['analyse_options']}} {{data['analyse_by']}}
+                movies</sup>&frasl;<sub>Total No. of tags related to {{data['analyse_options']}} {{data['analyse_by']}}
+                movies</sub></h2>
+        <img src="data:image/png;base64,{{data['chart']}}" />
         {% endif %}
     </div>
     <script>
         var analyseBySelect = document.getElementById("analyse-by");
         var analyseOptionsSelect = document.getElementById("analyse-options");
         var selectLabel = document.getElementById("select-label");
-        var genres = JSON.parse('{{ genres|tojson }}');
+        var data = JSON.parse('{{ data|tojson }}');
+        var genres = data.all_genres
         analyseBySelect.addEventListener("change", function () {
             analyseOptionsSelect.innerHTML = "";
-            if (analyseBySelect.value === "genre") {
+            if (analyseBySelect.value == "genre") {
 
                 selectLabel.innerHTML = "Genre:";
                 for (var i = 0; i < genres.length; i++) {
                     var option = document.createElement("option");
                     option.value = genres[i];
                     option.text = genres[i];
+                    if (data['analyse_options'] == genres[i]) {
+                        option.selected = true;
+                    }
                     analyseOptionsSelect.appendChild(option);
                 }
-            } else if (analyseBySelect.value === "rating") {
+            } else if (analyseBySelect.value == "rating") {
                 selectLabel.innerHTML = "Rating:";
                 for (var i = 1; i <= 5; i++) {
                     var option = document.createElement("option");
                     option.value = i;
                     option.text = i;
+                    if (data['analyse_options'] == i) {
+                        option.selected = true;
+                    }
                     analyseOptionsSelect.appendChild(option);
                 }
             }

@@ -2,6 +2,7 @@ import requests
 from flask import Flask, render_template, request, make_response, redirect, url_for
 import matplotlib.pyplot as plt
 from io import BytesIO
+import base64
 
 app = Flask(__name__)
 # api = Api(app, doc='/api/docs')
@@ -156,23 +157,22 @@ def draw_pie_chart(result):
     plt.savefig(chart, format='png')
     chart.seek(0)
 
-    return chart
+    return base64.b64encode(chart.getvalue()).decode('utf-8')
 
 
 @app.route('/tag-analysis', methods=['GET', 'POST'])
 def tag_analysis():
-    genres = requests.get('http://backend:5000/api/v1/view/all-genres').json()
+    data = requests.get('http://backend:5000/api/v1/view/all-genres').json()
     if request.method == 'POST':
-        analyse_by = request.form.get('analyse-by')
-        analyse_options = request.form.get('analyse-options')
+        analyse_by = request.form.get('analyse_by')
+        analyse_options = request.form.get('analyse_options')
         url = f'http://backend:5000/api/v1/tags/{analyse_by}/{analyse_options}'
         result = requests.get(url).json()
-        chart = draw_pie_chart(result)
-        response = make_response(chart.getvalue())
-        response.headers['Content-Type'] = 'image/png'
-        return response
-        return render_template('tag_analysis.html', genres=genres["all_genres"], chart=chart)
-    return render_template('tag_analysis.html', genres=genres["all_genres"])
+        data['chart'] = draw_pie_chart(result)
+        data['analyse_by'] = analyse_by
+        data['analyse_options'] = analyse_options
+        return render_template('tag_analysis.html', data=data)
+    return render_template('tag_analysis.html', data=data)
 
 
 if __name__ == '__main__':
