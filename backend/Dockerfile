@@ -9,5 +9,5 @@ WORKDIR /flask
 
 RUN python3 -m pip install -r requirements.txt
 
-CMD ["python3","app.py"]
+CMD ["gunicorn","-w 4","-b 0.0.0.0:5000","app:create_app()"]
 

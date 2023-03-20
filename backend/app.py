@@ -1,20 +1,22 @@
-from conn import dbConnection
-from flask import Flask, render_template, request, make_response, redirect, url_for
-
-app = Flask(__name__)
-
-from flask_restx import Api, Resource
+from flask import Flask
+from cache import cache
+from flask_restx import Api
 from uc3 import analyseGeneralRatingAPI, analyseRatingByGenresAPI, analyseRatingSameGenresAPI
 from visual_browsing import GetAllGenres, GetMovieGenres, GetMoviesData
 from movie_searcher import GetMovieActors, MovieSearcher, MovieSearcherV2
 
-from flask_caching import Cache
-
 from uc3 import analyseGeneralRatingAPI, analyseRatingByGenresAPI, analyseRatingSameGenresAPI, analyseRatingGroupGenresAPI
 
-conn = None
+api = Api()
 
-api = Api(app)
+def create_app():
+    app = Flask(__name__)
+    with app.app_context():
+        api.init_app(app)
+        cache.init_app(app,config={'CACHE_TYPE': 'SimpleCache'})
+
+    return app
+
 
 #namespace of the API
 api_ns = api.namespace('api', description= 'Example')
@@ -33,11 +35,3 @@ api.add_resource(MovieSearcherV2, '/api/v1/searchv2/<string:movieTitle>')
 api.add_resource(analyseGeneralRatingAPI, '/api/v1/rating/general/<int:movieID>')
 api.add_resource(analyseRatingByGenresAPI, '/api/v1/rating/genres/<int:movieID>/<int:genreID>')
 api.add_resource(analyseRatingSameGenresAPI, '/api/v1/rating/samegenres/<int:movieID>')
-
-
-
-
-
-
-if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0',port=5000)

@@ -1,13 +1,9 @@
 from conn import dbConnection
-from flask import request
 from flask_restx import Resource
 import numpy as np
 from flask_restx import reqparse
-from flask_caching import Cache
-from __main__ import app
+from cache import cache
 
-cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
-cache.init_app(app)
 
 class analyseGeneralRatingAPI(Resource):
     @cache.cached(timeout=3600, query_string=True)
