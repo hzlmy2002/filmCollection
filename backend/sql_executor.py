@@ -5,6 +5,7 @@ from conn import dbConnection
 class SqlExecutor():
     def execute_sql(self, command):
         try:
+            dbConnection.reconnect()
             cursor = dbConnection.cursor(buffered=True)
             cursor.execute(command)
             result = cursor.fetchall()

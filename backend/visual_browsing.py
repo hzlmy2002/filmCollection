@@ -2,6 +2,12 @@ from typing import TypedDict, Tuple
 from sql_executor import SqlExecutor
 from flask import Flask
 from flask_restx import Resource, inputs, Api
+from flask_caching import Cache
+from __main__ import app
+from conn import dbConnection
+
+cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
+cache.init_app(app)
 
 class Format_result():
     def format_genre(self, result, result_dict):
@@ -36,9 +42,9 @@ class Format_result():
 
 class GetAllGenres(Resource):
     # Get a list of all the genres
+    @cache.cached(timeout=3600, query_string=True)
     def get(self):
         payload = {}
-        print("inside genres")
         command = ("SELECT Genres.genre FROM Genres")
         result = [row[0] for row in SqlExecutor().execute_sql(command)]
         payload["all_genres"] = result
@@ -47,13 +53,18 @@ class GetAllGenres(Resource):
 
 class GetMovieGenres(Resource):
     # Get a list of genres for a movie
+    @cache.cached(timeout=3600, query_string=True)
     def get(self, movieID):
         payload = {}
         command = ("SELECT Genres.genre "
                    "FROM Movies, Movie_Genres, Genres "
                    "WHERE Movies.movieID = Movie_Genres.movieID AND Movie_Genres.genreID = Genres.genreID ")
-        command += f"AND Movies.movieID = \"{movieID}\" "
-        result = [row[0] for row in SqlExecutor().execute_sql(command)]
+        command += f"AND Movies.movieID = \"%s\" "
+        dbConnection.reconnect()
+        cursor=dbConnection.cursor()
+        cursor.execute(command, (movieID,))
+        result = [row[0] for row in cursor.fetchall()]
+        cursor.close()
         return result
 
 
@@ -74,31 +85,43 @@ parser.add_argument('to_rating', type=int)
 class GetMoviesData(Resource):
     # Get details of movies after filtering by date, genre and rating and sorting.
     @api.expect(parser)
+    @cache.cached(timeout=3600, query_string=True)
     def get(self):
-        print("inside get movie data api")
         args = parser.parse_args()
+        params=[]
         command = ("SELECT DISTINCT Movies.movieID, Movies.title, Movies.date, Movies.rotten_tomatoes_rating "
                    "FROM Movies "
                    "LEFT JOIN Movie_Genres ON Movies.movieID = Movie_Genres.movieID "
                    "LEFT JOIN Genres ON Movie_Genres.genreID = Genres.genreID ")
         if args.genre is not None:
-            command += f"WHERE Genres.genre = '{args.genre}' "
+            command += f"WHERE Genres.genre = %s "
+            params.append(args.genre)
         else:
             command += f"WHERE TRUE "
         if args.start_year is not None:
-            command += f"AND year(Movies.date) >= {args.start_year} "
+            command += f"AND year(Movies.date) >= %s "
+            params.append(args.start_year)
         if args.end_year is not None:
-            command += f"AND year(Movies.date) <= {args.end_year} "
+            command += f"AND year(Movies.date) <= %s "
+            params.append(args.end_year)
         if args.from_rating is not None:
-            command += f"AND Movies.rotten_tomatoes_rating >= {args.from_rating} "
+            command += f"AND Movies.rotten_tomatoes_rating >= %s "
+            params.append(args.from_rating)
         if args.to_rating is not None:
-            command += f"AND Movies.rotten_tomatoes_rating <= {args.to_rating} "
+            command += f"AND Movies.rotten_tomatoes_rating <= %s "
+            params.append(args.to_rating)
         sorting_mode = 'ASC' if args.sorting_asc else 'DESC'
-        command += f" ORDER BY {args.sorting_field} {sorting_mode} "
-
-        result = SqlExecutor().execute_sql(command)
+        sorting_field = args.sorting_field
+        if sorting_field not in ["movieID", "title", "content", "date", "rotten_tomatoes_rating"]:
+            sorting_field="rotten_tomatoes_rating"
+        command += f" ORDER BY {sorting_field} {sorting_mode} "
+        dbConnection.reconnect()
+        cursor=dbConnection.cursor()
+        cursor.execute(command,tuple(params))
+        result = cursor.fetchall()
         result_dict = SqlExecutor().convert_to_dict(
             result, ["movieID", "title", "date", "rotten_tomatoes_rating"])
+        cursor.close()
         for movie in result_dict:
             if movie["date"] is not None:
                 movie["date"] = movie["date"].strftime("%m/%d/%Y")
