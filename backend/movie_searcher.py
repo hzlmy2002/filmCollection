@@ -15,7 +15,7 @@ class GetMovieActors(Resource):
 
 class MovieSearcher(Resource):
     def get(self, column, value):
-        command = ("SELECT DISTINCT Movies.movieID, Movies.title, Movies.content, Movies.date, Movies.rotten_tomatoes_rating, Directors.director_name "
+        command = ("SELECT DISTINCT Movies.movieID, Movies.title, Movies.date, Movies.rotten_tomatoes_rating "
                    "FROM Movies "
                    "LEFT JOIN Movie_Directors ON Movies.movieID = Movie_Directors.movieID "
                    "LEFT JOIN Directors ON Movie_Directors.directorID = Directors.directorID ")
@@ -25,13 +25,12 @@ class MovieSearcher(Resource):
         command += f"WHERE LOWER({column}) LIKE \"%{value.lower()}%\""
         result = SqlExecutor().execute_sql(command)
         result_dict = SqlExecutor().convert_to_dict(
-            result, ["movieID", "title", "content", "date", "rotten_tomatoes_rating", "director_name"])
+            result, ["movieID", "title", "date", "rotten_tomatoes_rating"])
         for movie in result_dict:
             if movie["date"] is not None:
                 movie["date"] = movie["date"].strftime("%m/%d/%Y")
             else:
                 movie["date"] = ""
-            movie["actors"] = GetMovieActors().get(movie["movieID"])
             movie["genres"] = GetMovieGenres().get(movie["movieID"])
         return result_dict
 

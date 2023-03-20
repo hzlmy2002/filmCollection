@@ -128,16 +128,16 @@
                     <div class="row">
                         <div class="col-sm-8"><h2>Movie Table</h2></div>
                         <div class="col-sm-4">
-                            <select id="search-options" class="selectpicker" data-live-search="true" name="search-choice">
-                                <option selected="selected"> Search By </option>
-                                <option value="title">Title</option>
-                                <option value="director">Director</option>
-                                <option value="actors">Actor</option>
-                            </select>
                             <form action="/" method="get">
+                                <select id="search-options" class="selectpicker" data-live-search="true" name="search-choice">
+                                    <option selected="selected"> Search By </option>
+                                    <option value="title">Title</option>
+                                    <option value="director_name">Director</option>
+                                    <option value="actor_name">Actor</option>
+                                </select>
                                 <div class="search-box">
                                     <i class="material-icons">&#xE8B6;</i>
-                                    <input type="text" class="form-control" placeholder="Input search&hellip;">
+                                    <input type="text" class="form-control" name="search-value" placeholder="Input search&hellip;">
                                     <input type="submit" value="Go" style="font-size:10px; height:20px; width:50px">   
                                 </div>
                             </form>

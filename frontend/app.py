@@ -110,15 +110,10 @@ def index():
     #search based on title, director and actor
     search_column = request.args.get('search-choice', None, type=str)
     search_value = request.args.get('search-value', None, type=str)
-    if(search_value):
-        query_str = 'http://' + 'backend:5000' + '/api/v1/search/'
-        if(search_column == 'title'):
-            pass
-            
-        elif(search_column == 'director'):
-            pass
-        elif(search_value == 'actor'):
-            pass
+    if(search_column and search_value):
+        query_str = 'http://' + 'backend:5000' + '/api/v1/search/' + search_column + '/' + search_value
+        table_data.table_data = requests.get(query_str).json()
+    
     
     
     movie_pl = table_data.table_data
@@ -132,7 +127,7 @@ def index():
     pagination.pages = pagination.total_data_rows // pagination.data_rows_displayed
 
     print(table_data.genres["all_genres"])
-    return render_template('test.html', page=pagination, movies=movie_pl[pagination.start_index:pagination.end_index], genres=table_data.genres["all_genres"])
+    return render_template('movie_data_table.html', page=pagination, movies=movie_pl[pagination.start_index:pagination.end_index], genres=table_data.genres["all_genres"])
 
 @app.route('/view-movie-data', methods=['GET'])
 def movie_details():
