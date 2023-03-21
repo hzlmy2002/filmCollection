@@ -138,7 +138,66 @@ def movie_details():
 
 
 
+@app.route('/viewer-analytics', methods=['GET'])
+def viewer_analytics():
+    movie_id = request.args.get('movieID', None, type=int)
+    print("Movie ID", movie_id)
 
+
+    #scattler plot
+    query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/ratings/' + str(movie_id)
+    scatter_plot_data = requests.get(query_str).json()
+
+    #pie chart
+    #bad ratings
+    query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/user-group/' + str(movie_id) + '/1'
+    bad_ratings = requests.get(query_str).json()
+
+    #good ratings
+    query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/user-group/' + str(movie_id) + '/2'
+    good_ratings = requests.get(query_str).json()
+
+    #amazingratings
+    query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/user-group/' + str(movie_id) + '/3'
+    amazing_ratings = requests.get(query_str).json()
+
+    pie_chart_data = [bad_ratings["num_users"], good_ratings["num_users"], amazing_ratings["num_users"]]
+
+    print("pie chart data", pie_chart_data)
+
+    num_users_rated = bad_ratings["num_users"] + good_ratings["num_users"] + amazing_ratings["num_users"]
+    #summary statistics
+    #movie title and rotten tomatoes
+
+    #Avg User Rating 
+    query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/average-rating/' + str(movie_id)
+    sum_stat = requests.get(query_str).json()[0]
+    print("Sum stat", sum_stat)
+    reaction = None
+    if(sum_stat["avg_rating"] < 2):
+        reaction = 'Bad'
+    elif(sum_stat["avg_rating"] >= 2 and sum_stat["avg_rating"] < 4):
+        reaction = 'Good'
+    else:
+        reaction = 'Amazing'
+    
+    summary_stats = { "title" : sum_stat['title'],
+                     "rotten_tomatoes_rating" : sum_stat['rotten_tomatoes_rating'],
+                     "avg_rating" : sum_stat['avg_rating'],
+                     "reaction" : reaction,
+                     "num_users_rated" : num_users_rated
+                    }
+    
+    user_ratios = { "dislike" : round((bad_ratings["num_users"]/num_users_rated) * 100, 2),
+                   "like" : round((good_ratings["num_users"]/num_users_rated) * 100, 2),
+                   "amazing" : round((amazing_ratings["num_users"]/num_users_rated) * 100, 2)
+                    }
+    
+
+    # print(scatter_plot_data)
+    # print("x-val", scatter_plot_data["timestamp"])
+    # print("y-val", scatter_plot_data["ratings"])
+    return render_template('viewer_analytics_dashboard.html', summary_stats=summary_stats, scatter_plot_data=scatter_plot_data, pie_chart_data=pie_chart_data, user_ratios=user_ratios)
 
 
 if __name__ == '__main__':

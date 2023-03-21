@@ -40,20 +40,20 @@ class GetAllUserRatingsForMovie(Resource):
     def get(self, movieID):
         command = ('SELECT Movies.movieID, User_ratings.userID, User_ratings.movielens_rating, User_ratings.timestamp FROM Movies, User_ratings \
                     WHERE Movies.movieID = User_ratings.movieID AND Movies.movieID = %s \
-                    ORDER BY User_ratings.movielens_rating ASC')
+                    ORDER BY User_ratings.timestamp ASC')
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
         cursor.execute(command, (movieID,))
         result = cursor.fetchall()
-        result_dict = SqlExecutor().convert_to_dict(
-            result, ["movieId", "userID", "user_rating", "timestamp"])
+        result_dict = {"ratings": [row[2] for row in result],
+                       "timestamp" : [row[3] for row in result]}
         cursor.close()
         return result_dict
 
 # to show statistic
 class GetAvgUserRatingForMovie(Resource):
     def get(self, movieID):
-        command = ('SELECT Movies.movieID, Movies.title, ROUND(AVG(User_ratings.movielens_rating),2) FROM Movies, User_ratings \
+        command = ('SELECT Movies.movieID, Movies.title, ROUND(AVG(User_ratings.movielens_rating),2), Movies.rotten_tomatoes_rating FROM Movies, User_ratings \
                     WHERE Movies.movieID = User_ratings.movieID AND Movies.movieID = %s  \
                     GROUP BY movieID;')
         dbConnection.reconnect()
@@ -61,7 +61,7 @@ class GetAvgUserRatingForMovie(Resource):
         cursor.execute(command, (movieID,))
         result = cursor.fetchall()
         result_dict = SqlExecutor().convert_to_dict(
-            result, ["movieID", "title", "avg_rating"])
+            result, ["movieID", "title", "avg_rating", "rotten_tomatoes_rating"])
         cursor.close()
         return result_dict
     
@@ -72,11 +72,11 @@ class GetNumUsersFromRatingGroupForSpecificMovie(Resource):
         command =  ('SELECT COUNT(User_ratings.userID) FROM Movies, User_ratings \
                         WHERE Movies.movieID = User_ratings.movieID AND Movies.movieID = %s ')
         if(group == 1):
-            command = command + 'AND User_ratings.movielens_rating <= 2;'
+            command = command + 'AND User_ratings.movielens_rating < 2'
         elif(group == 2):
-            command = command + 'AND User_ratings.movielens_rating >2 AND User_ratings.movielens_rating <=4'
+            command = command + 'AND User_ratings.movielens_rating >=2 AND User_ratings.movielens_rating <4'
         elif(group == 3):
-            command = command + 'AND User_ratings.movielens_rating >4'
+            command = command + 'AND User_ratings.movielens_rating >=4'
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
         cursor.execute(command, (movieID,))
@@ -135,3 +135,5 @@ class GetAvgRatingInDiffGenresOfUsersInRatingGroup(Resource):
             result, ["avg_rating", "genreID", "Genre"])
         cursor.close()
         return result_dict
+    
+    #feature to find top 3 movies of users favourite genre

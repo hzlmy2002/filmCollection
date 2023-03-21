@@ -1,0 +1,295 @@
+<!doctype html>
+<!-- 
+* Bootstrap Simple Admin Template
+* Version: 2.1
+* Author: Alexis Luna
+* Website: https://github.com/alexis-luna/bootstrap-simple-admin-template
+-->
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Viewer Dashboard</title>
+    <link href="static/assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="static/assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
+    <link href="static/assets/vendor/fontawesome/css/brands.min.css" rel="stylesheet">
+    <link href="static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/assets/css/master.css" rel="stylesheet">
+    <link href="static/assets/vendor/flagiconcss/css/flag-icon.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="wrapper">
+
+            <div class="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12 page-header">
+                            <div class="page-pretitle">Viewer Overview</div>
+                            <h1 class="page-title">{{summary_stats["title"]}}</h1>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6 col-lg-3 mt-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="icon-big text-center">
+                                                <i class=""></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <div class="detail">
+                                                <p class="detail-subtitle">Rotten Tomatoes Rating</p>
+                                                <span class="number">{{summary_stats["rotten_tomatoes_rating"]}} / 100</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-3 mt-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="icon-big text-center">
+                                                <i class=""></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <div class="detail">
+                                                <p class="detail-subtitle">Average User Movielens Rating</p>
+                                                <span class="number">{{summary_stats["avg_rating"]}} / 5</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-3 mt-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="icon-big text-center">
+                                                <i class="violet fas fa-eye"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <div class="detail">
+                                                <p class="detail-subtitle">Number of Users who rated this movie</p>
+                                                <span class="number">{{summary_stats["num_users_rated"]}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-3 mt-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            <div class="icon-big text-center">
+                                                <i class=""></i>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <div class="detail">
+                                                <p class="detail-subtitle">Overall Film Reaction</p>
+                                                <span class="number">{{summary_stats["reaction"]}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="footer">
+                                        <hr />
+                                        <div class="stats">
+                                            <i class="fas fa-envelope-open-text"></i> For this week
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="content">
+                                            <div class="head">
+                                                <h5 class="mb-0">Ratings Overview</h5>
+                                                <p class="text-muted">User ratings over timestamp</p>
+                                            </div>
+                                            <div class="canvas-wrapper">
+                                                <canvas class="chart" id="user-ratings"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="content">
+                                            <div class="head">
+                                                <h5 class="mb-0">Viewer Classification</h5>
+                                                <p class="text-muted">Reaction groups of users who rated </p>
+                                            </div>
+                                            <div class="canvas-wrapper">
+                                                <canvas class="chart" id="sales"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6 col-lg-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="dfd text-center">
+                                            <i class=""></i>
+                                            <h4 class="mb-0">{{user_ratios["dislike"]}} %</h4>
+                                            <p class="text-muted">OF VIEWERS DISLIKED THE FILM</p>
+                                        </div>
+                                    </div>
+                                    <div class="footer">
+                                        <hr />
+                                        <div class="stats">
+                                            <i class="fas fa-calendar"></i> View more statistics
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="dfd text-center">
+                                            <i class=""></i>
+                                            <h4 class="mb-0">{{user_ratios["like"]}} %</h4>
+                                            <p class="text-muted">OF VIEWERS LIKED THE FILM</p>
+                                        </div>
+                                    </div>
+                                    <div class="footer">
+                                        <hr />
+                                        <div class="stats">
+                                            <i class="fas fa-calendar"></i> View more statistics
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="dfd text-center">
+                                            <i class=""></i>
+                                            <h4 class="mb-0">{{user_ratios["amazing"]}} %</h4>
+                                            <p class="text-muted">OF VIEWERS FOUND THE FILM AMAZING</p>
+                                        </div>
+                                    </div>
+                                    <div class="footer">
+                                        <hr />
+                                        <div class="stats">
+                                            <i class="fas fa-calendar"></i> View more statistics
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="static/assets/vendor/jquery/jquery.min.js"></script>
+    <script src="static/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="static/assets/vendor/chartsjs/Chart.min.js"></script>
+    <script src="static/assets/js/script.js"></script>
+    <script>
+        //CHART 1
+        var userratingchart = document.getElementById("user-ratings");
+
+        var myChart1 = new Chart(userratingchart, {
+            type: 'line',
+            data: {
+                labels: {{scatter_plot_data["timestamp"]}},
+                datasets: [{
+                    data: {{scatter_plot_data["ratings"]}},
+                    backgroundColor: "rgba(48, 164, 255, 0.2)",
+                    borderColor: "rgba(48, 164, 255, 0.8)",
+                    fill: true,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart',
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                        position: 'right',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Number of Visitors',
+                        position: 'left',
+                    },
+                },
+                scales: {
+                    y:{
+                        min: 0,
+                        max: 5
+                    }
+
+                }
+            }
+            });
+
+
+        //CHART 2
+        var saleschart = document.getElementById("sales");
+        var myChart3 = new Chart(saleschart, {
+            type: 'pie',
+            data: {
+                labels: ["Bad (<2)", "Good (>=2 and <4)", "Amazing (>=4)"],
+                datasets: [{
+                    data: {{pie_chart_data}},
+                    backgroundColor: ["#009688", "#795548", "#673AB7"],
+                    hoverOffset: 3
+                }]
+            },
+            options: {
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart',
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'right',
+                    },
+                    title: {
+                        display: false,
+                        text: 'Total Value',
+                        position: 'left',
+                    },
+                },
+            }
+            });
+            
+
+    </script>
+</body>
+
+</html>
