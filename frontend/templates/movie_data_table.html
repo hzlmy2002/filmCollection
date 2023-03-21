@@ -1,16 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends "base.html" %}
+
+{% block head%}
 <title>Movie Data Table</title>
-<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <style>
     body {
         color: #566787;
@@ -127,8 +118,9 @@
         font-size: 95%;
     }    
 </style>
-</head>
-<body>
+{% endblock%}
+
+{% block body %}
     <div class="container">
         <div class="table-responsive">
             <div class="table-wrapper">
@@ -136,10 +128,19 @@
                     <div class="row">
                         <div class="col-sm-8"><h2>Movie Table</h2></div>
                         <div class="col-sm-4">
-                            <div class="search-box">
-                                <i class="material-icons">&#xE8B6;</i>
-                                <input type="text" class="form-control" placeholder="Search&hellip;">
-                            </div>
+                            <form action="/" method="get">
+                                <select id="search-options" class="selectpicker" data-live-search="true" name="search-choice">
+                                    <option selected="selected"> Search By </option>
+                                    <option value="title">Title</option>
+                                    <option value="director_name">Director</option>
+                                    <option value="actor_name">Actor</option>
+                                </select>
+                                <div class="search-box">
+                                    <i class="material-icons">&#xE8B6;</i>
+                                    <input type="text" class="form-control" name="search-value" placeholder="Input search&hellip;">
+                                    <input type="submit" value="Go" style="font-size:10px; height:20px; width:50px">   
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -228,7 +229,7 @@
                             <td>{{ movie.rotten_tomatoes_rating }}</td>
                             <td>{{ movie.genres }}</td>
                             <td>
-                                <a href="#" class="view" title="View" data-toggle="tooltip"><i class="material-icons">&#xE417;</i></a>
+                                <a href="view-movie-data?title={{movie.title}}" class="view" title="View" data-toggle="tooltip"><i class="material-icons">&#xE417;</i></a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -270,6 +271,5 @@
         });
 
     
-    </script>   
-</body>
-</html>
+    </script>
+{%endblock%}   

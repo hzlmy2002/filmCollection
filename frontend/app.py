@@ -116,6 +116,14 @@ def index():
             sorting_asc + "&sorting_field=" + sorting_field
         table_data.table_data = requests.get(query_str).json()
 
+    # search based on title, director and actor
+    search_column = request.args.get('search-choice', None, type=str)
+    search_value = request.args.get('search-value', None, type=str)
+    if (search_column and search_value):
+        query_str = 'http://' + 'backend:5000' + \
+            '/api/v1/search/' + search_column + '/' + search_value
+        table_data.table_data = requests.get(query_str).json()
+
     movie_pl = table_data.table_data
 
     # pagination
@@ -127,12 +135,16 @@ def index():
     pagination.pages = pagination.total_data_rows // pagination.data_rows_displayed
 
     print(table_data.genres["all_genres"])
-    return render_template('test.html', page=pagination, movies=movie_pl[pagination.start_index:pagination.end_index], genres=table_data.genres["all_genres"])
+    return render_template('movie_data_table.html', page=pagination, movies=movie_pl[pagination.start_index:pagination.end_index], genres=table_data.genres["all_genres"])
 
 
-@app.route('/filter', methods=['GET'])
-def filter():
-    pass
+@app.route('/view-movie-data', methods=['GET'])
+def movie_details():
+    movie_title = request.args.get('title', 0, type=str)
+    movie_details = requests.get(
+        'http://' + 'backend:5000' + '/api/v1/searchv2/' + movie_title).json()
+    print(movie_details)
+    return render_template('movie_detail.html', movie_details=movie_details[0])
 
 
 def draw_pie_chart(result):
