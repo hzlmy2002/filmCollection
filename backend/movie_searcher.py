@@ -11,7 +11,7 @@ class GetMovieActors(Resource):
         command = ("SELECT Actors.actor_name "
                    "FROM Movies, Movie_Actors, Actors "
                    "WHERE Movies.movieID = Movie_Actors.movieID AND Movie_Actors.actorID = Actors.actorID "
-                   f"AND Movies.movieID = %s")
+                   "AND Movies.movieID = %s")
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
         cursor.execute(command, (movieID,))
@@ -30,10 +30,13 @@ class MovieSearcher(Resource):
         if column == "actor_name":
             command += ("LEFT JOIN Movie_Actors ON Movies.movieID = Movie_Actors.movieID "
                         "LEFT JOIN Actors ON Movie_Actors.actorID = Actors.actorID ")
-        command += f"WHERE LOWER(%s) LIKE \"%s\""
+        if column not in ["title","actor_name","director_name"]:
+            column = "title"
+        command += "WHERE LOWER("+column+") LIKE %s"
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
-        cursor.execute(command, (column,f'%{value.lower()}%'))
+        value=value.lower()
+        cursor.execute(command, (f'%{value}%',))
         result = cursor.fetchall()
         result_dict = SqlExecutor().convert_to_dict(
             result, ["movieID", "title", "date", "rotten_tomatoes_rating"])
@@ -54,7 +57,7 @@ class MovieSearcherV2(Resource):
                    "LEFT JOIN Directors ON Movie_Directors.directorID = Directors.directorID "
                    "LEFT JOIN Movie_Actors ON Movies.movieID = Movie_Actors.movieID "
                     "LEFT JOIN Actors ON Movie_Actors.actorID = Actors.actorID ")
-        command += f"WHERE LOWER(Movies.title) LIKE \"%s\""
+        command += "WHERE LOWER(Movies.title) LIKE %s"
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
         cursor.execute(command, (f'%{movieTitle}%',))

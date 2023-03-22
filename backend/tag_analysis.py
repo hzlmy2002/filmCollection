@@ -1,6 +1,6 @@
 from sql_executor import SqlExecutor
 from flask_restx import Resource
-
+from conn import dbConnection
 
 class GetTagsByGenre(Resource):
     def get(self, genre):
@@ -10,9 +10,13 @@ class GetTagsByGenre(Resource):
                    "JOIN Movie_Genres ON User_tags.movieID = Movie_Genres.movieID "
                    "JOIN Genres ON Movie_Genres.genreID = Genres.genreID "
                    "GROUP BY User_tags.movielens_tag, Genres.genre "
-                   f"HAVING Genres.genre = \"{genre}\" AND tag_count > 3 "
+                   "HAVING Genres.genre = %s AND tag_count > 3 "
                    "ORDER BY tag_count DESC;")
-        result = SqlExecutor().execute_sql(command)
+        dbConnection.reconnect()
+        cur=dbConnection.cursor()
+        cur.execute(command, (genre,))
+        result = cur.fetchall()
+        cur.close()
         result_dict = SqlExecutor().convert_to_dict(
             result, ["tag_name", "count", "percentage"])
         for tag in result_dict:
@@ -28,9 +32,13 @@ class GetTagsByRating(Resource):
                    "LEFT JOIN User_ratings ON User_tags.userID = User_ratings.userID AND User_tags.movieID = User_ratings.movieID "
                    "GROUP BY User_tags.movielens_tag "
                    "HAVING MAX(User_ratings.movielens_rating) - MIN(User_ratings.movielens_rating) <= 1 AND tag_count > 2 "
-                   f"AND ROUND(AVG(User_ratings.movielens_rating)) = {rating} "
+                   "AND ROUND(AVG(User_ratings.movielens_rating)) = %s "
                    "ORDER BY tag_count DESC;")
-        result = SqlExecutor().execute_sql(command)
+        dbConnection.reconnect()
+        cur=dbConnection.cursor()
+        cur.execute(command, (rating,))
+        result = cur.fetchall()
+        cur.close()
         result_dict = SqlExecutor().convert_to_dict(
             result, ["tag_name", "count", "percentage"])
         for tag in result_dict:

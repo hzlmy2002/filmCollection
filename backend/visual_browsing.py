@@ -54,7 +54,7 @@ class GetMovieGenres(Resource):
         command = ("SELECT Genres.genre "
                    "FROM Movies, Movie_Genres, Genres "
                    "WHERE Movies.movieID = Movie_Genres.movieID AND Movie_Genres.genreID = Genres.genreID ")
-        command += f"AND Movies.movieID = \"%s\" "
+        command += "AND Movies.movieID = %s "
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
         cursor.execute(command, (movieID,))
