@@ -4,3 +4,4 @@ flask-restx==1.0.5
 numpy==1.24.2
 urllib3
 requests
+matplotlib

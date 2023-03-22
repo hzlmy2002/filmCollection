@@ -1,12 +1,8 @@
 from sql_executor import SqlExecutor
 from visual_browsing import GetMovieGenres
 from flask_restx import Resource
-from flask_caching import Cache
-from __main__ import app
+from cache import cache
 from conn import dbConnection
-
-cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
-cache.init_app(app)
 
 
 class GetMovieActors(Resource):
