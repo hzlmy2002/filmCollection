@@ -15,7 +15,7 @@ def create_app():
     app = Flask(__name__)
     with app.app_context():
         api.init_app(app)
-        cache.init_app(app, config={'CACHE_TYPE': 'SimpleCache'})
+        cache.init_app(app, config={'CACHE_TYPE': 'RedisCache','CACHE_REDIS_HOST': 'redis'})
 
     return app
 
