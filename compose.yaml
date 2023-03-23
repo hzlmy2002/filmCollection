@@ -1,8 +1,6 @@
 services:
   db:
     build: database
-    ports:
-      - 3306:3306
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database:/docker-entrypoint-initdb.d
@@ -26,6 +24,12 @@ services:
     environment:
       PMA_HOSTS: db
 
+  redis:
+    image: redis
+    restart: always
+    expose:
+      - 6379
+
   backend:
     stdin_open: true
     tty: true
@@ -41,6 +45,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   frontend:
     stdin_open: true

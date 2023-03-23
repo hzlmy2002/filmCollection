@@ -1,21 +1,24 @@
 from conn import dbConnection
-from flask import request
 from flask_restx import Resource
 import numpy as np
 from flask_restx import reqparse
+from cache import cache
 
 
 class analyseGeneralRatingAPI(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self,movieID):
         ar=analyseRating(dbConnection)
         return ar.getUserRating(movieID)
     
 class analyseRatingByGenresAPI(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self,movieID,genreID):
         ar=analyseRating(dbConnection)
         return ar.getUserGenreRating(movieID,[genreID])
     
 class analyseRatingSameGenresAPI(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self,movieID):
         ar=analyseRating(dbConnection)
         return ar.getSameGenreRating(movieID)    
@@ -46,9 +49,11 @@ class analyseRating():
         self.friendly_user.clear()
         self.unfriendly_user.clear()
         statm="select userID, avg(movielens_rating) from User_ratings group by userID"
+        self.conn.reconnect()
         cur=self.conn.cursor()
         cur.execute(statm)
         result=cur.fetchall()
+        cur.close()
         for row in result:
             if row[1]>=4:
                 self.friendly_user.append(row[0])
@@ -60,9 +65,11 @@ class analyseRating():
         self.unfriendly_user.clear()
         tmp=[str(i) for i in genereIDList]
         statm="select User_ratings.userID, avg(User_ratings.movielens_rating) as rating from User_ratings,Movie_Genres where User_ratings.movieID=Movie_Genres.movieID and Movie_Genres.genreID in (%s) group by userID"
+        self.conn.reconnect()
         cur=self.conn.cursor()
         cur.execute(statm,(", ".join(tmp),))
         result=cur.fetchall()
+        cur.close()
         for row in result:
             if row[1]>=4:
                 self.friendly_user.append(row[0])
@@ -73,9 +80,11 @@ class analyseRating():
         self.activeUser.clear()
         self.inactiveUser.clear()
         statm="select count(userID) from User_ratings group by userID"
+        self.conn.reconnect()
         cur=self.conn.cursor()
         cur.execute(statm)
         result=cur.fetchall()
+        cur.close()
         result=[row[0] for row in result]
         result.sort()
         lower,upper=np.percentile(result,[25,75])
@@ -95,6 +104,7 @@ class analyseRating():
         inactive_user_rating=-1
 
         statm="select avg(movielens_rating) from User_ratings where movieID=%s and userID in (%s)"
+        self.conn.reconnect()
         cur=self.conn.cursor()
         tmp=[str(i) for i in self.friendly_user]
         cur.execute(statm,(movieID,", ".join(tmp)))
@@ -114,6 +124,7 @@ class analyseRating():
         tmp=[str(i) for i in self.inactiveUser]
         cur.execute(statm,(movieID,", ".join(tmp)))
         result=cur.fetchone()
+        cur.close()
         if result[0]:
             inactive_user_rating=result[0]
         return {"friendly_user_rating":friendly_user_rating,"unfriendly_user_rating":unfriendly_user_rating,"active_user_rating":active_user_rating,"inactive_user_rating":inactive_user_rating}
@@ -127,6 +138,7 @@ class analyseRating():
         inactive_user_rating=-1
 
         statm="select avg(movielens_rating) from User_ratings where movieID=%s and userID in (%s)"
+        self.conn.reconnect()
         cur=self.conn.cursor()
         tmp=[str(i) for i in self.friendly_user]
         cur.execute(statm,(movieID,", ".join(tmp)))
@@ -146,6 +158,7 @@ class analyseRating():
         tmp=[str(i) for i in self.inactiveUser]
         cur.execute(statm,(movieID,", ".join(tmp)))
         result=cur.fetchone()
+        cur.close()
         if result[0]:
             inactive_user_rating=result[0]
         return {"friendly_user_rating":friendly_user_rating,"unfriendly_user_rating":unfriendly_user_rating,"active_user_rating":active_user_rating,"inactive_user_rating":inactive_user_rating}
@@ -153,9 +166,11 @@ class analyseRating():
 
     def getSameGenreRating(self,movieID):
         statm="select genreID from Movie_Genres where movieID=%s"
+        self.conn.reconnect()
         cur=self.conn.cursor()
         cur.execute(statm,(movieID,))
         result=cur.fetchall()
+        cur.close()
         if result:
             result=[row[0] for row in result]
             return self.getUserGenreRating(movieID,result)
