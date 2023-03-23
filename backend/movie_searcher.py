@@ -1,12 +1,8 @@
 from sql_executor import SqlExecutor
 from visual_browsing import GetMovieGenres
 from flask_restx import Resource
-from flask_caching import Cache
-from __main__ import app
+from cache import cache
 from conn import dbConnection
-
-cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
-cache.init_app(app)
 
 
 class GetMovieActors(Resource):
@@ -15,7 +11,7 @@ class GetMovieActors(Resource):
         command = ("SELECT Actors.actor_name "
                    "FROM Movies, Movie_Actors, Actors "
                    "WHERE Movies.movieID = Movie_Actors.movieID AND Movie_Actors.actorID = Actors.actorID "
-                   f"AND Movies.movieID = %s")
+                   "AND Movies.movieID = %s")
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
         cursor.execute(command, (movieID,))

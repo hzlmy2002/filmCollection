@@ -1,13 +1,8 @@
-from typing import TypedDict, Tuple
 from sql_executor import SqlExecutor
 from flask import Flask
 from flask_restx import Resource, inputs, Api
-from flask_caching import Cache
-from __main__ import app
+from cache import cache
 from conn import dbConnection
-
-cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
-cache.init_app(app)
 
 class Format_result():
     def format_genre(self, result, result_dict):
@@ -59,7 +54,7 @@ class GetMovieGenres(Resource):
         command = ("SELECT Genres.genre "
                    "FROM Movies, Movie_Genres, Genres "
                    "WHERE Movies.movieID = Movie_Genres.movieID AND Movie_Genres.genreID = Genres.genreID ")
-        command += f"AND Movies.movieID = \"%s\" "
+        command += "AND Movies.movieID = %s "
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
         cursor.execute(command, (movieID,))
