@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block head%}
+<title>Personality Analysis</title>
+{% endblock%}
+
+{% block body %}
+<div class="questions">
+    <h1>Personality Trait Analysis</h1>
+    <form method="POST">
+        <label for="trait-film-ranking-trait">Choose trait to analyse:</label>
+        <select id="trait-film-ranking-trait" name="trait_film_ranking_trait">
+            {% for trait in data['traits'] %}
+            <option value="{{ loop.index - 1 }}">{{ trait }}</option>
+            {% endfor %}
+        </select>
+        <label for="trait-film-ranking-highest">View movies with highest or lowest ratings:</label>
+        <select id="trait-film-ranking-highest" name="trait_film_ranking_highest">
+            <option value=1>highest</option>
+            <option value=0>lowest</option>
+        </select>
+        <input type="submit">
+    </form>
+    <form method="POST">
+        <label for="trait-film-ratings-trait">Choose trait to analyse:</label>
+        <select id="trait-film-ratings-trait" name="trait_film_ratings_trait">
+            {% for trait in data['traits'] %}
+            <option value="{{ loop.index - 1 }}">{{ trait }}</option>
+            {% endfor %}
+        </select>
+        <label for="trait-film-ratings-trait">View average ratings given by users:</label>
+        <input id="trait-film-ratings-trait" type="submit">
+    </form>
+    <form method="POST">
+        <label for="trait-genre-ranking-trait">Choose trait to analyse:</label>
+        <select id="trait-genre-ranking-trait" name="trait_genre_ranking_trait">
+            {% for trait in data['traits'] %}
+            <option value="{{ loop.index - 1 }}">{{ trait }}</option>
+            {% endfor %}
+        </select>
+        <label for="trait-genre-ranking-highest">View genres with highest or lowest ratings:</label>
+        <select id="trait-genre-ranking-highest" name="trait_genre_ranking_highest">
+            <option value=1>highest</option>
+            <option value=0>lowest</option>
+        </select>
+        <input type="submit">
+    </form>
+    <form method="POST">
+        <label for="genre-traits-ranking-genre">Choose genre to view summary:</label>
+        <select id="genre-traits-ranking-genre" name="genre_traits_ranking_genre">
+            {% for genre in data['genres'] %}
+            <option value="{{ loop.index }}">{{ genre }}</option>
+            {% endfor %}
+        </select>
+        <label for="genre-traits-ranking-highest">View traits who give highest or lowest ratings:</label>
+        <select id="genre-traits-ranking-highest" name="genre_traits_ranking_highest">
+            <option value=1>highest</option>
+            <option value=0>lowest</option>
+        </select>
+        <input type="submit">
+    </form>
+</div>
+<div class="results">
+    {% if data['trait_film_ranking'] %}
+    <h3>Analysing personality trait: {{ data['trait_film_ranking_data'].trait }} 
+                                   | {{ data['trait_film_ranking_data'].highest }} rated films</h2>
+    <table>
+        <tr>
+            <th>Title</th>
+            <th>Ratings</th>
+        </tr>
+        {% for movie in data['trait_film_ranking'] %}
+        <tr>
+            <td>{{ movie.title }}</td>
+            <td>{{ movie.ratings }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    {% if data['trait_film_ratings'] %}
+    <h3>Analysing personality trait: {{ data['trait_film_ratings_data'].trait }}</h2>
+    <img src="data:image/png;base64,{{ data['trait_film_ratings'] }}" />
+    {% endif %}
+    {% if data['trait_genre_ranking'] %}
+    <h3>Analysing personality trait: {{ data['trait_genre_ranking_data'].trait }} 
+                                   | {{ data['trait_genre_ranking_data'].highest }} rated genres</h2>
+    <table>
+        <tr>
+            <th>Genre</th>
+            <th>Ratings</th>
+        </tr>
+        {% for gen in data['trait_genre_ranking'] %}
+        <tr>
+            <td>{{ gen.genre }}</td>
+            <td>{{ gen.avg }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    {% if data['genre_traits_ranking'] %}
+    <h3>Analysing personality trait for genre: {{ data['genre_traits_ranking_data'].genre }} 
+                                             | {{ data['genre_traits_ranking_data'].highest }} personality average ratings</h2>
+    <table>
+        <tr>
+            <th>Personality</th>
+            <th>Ratings</th>
+        </tr>
+        {% for p in data['genre_traits_ranking'] %}
+        <tr>
+            <td>{{ p.trait }}</td>
+            <td>{{ p.avg }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</div>
+<script>
+
+</script>
+{%endblock%}
