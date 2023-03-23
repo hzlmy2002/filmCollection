@@ -33,8 +33,10 @@ table_data = TableLoader()
 @app.route('/', methods=['GET'])
 def index():
 
+    refresh = request.args.get('refresh', False, type=bool)
+
     # intial loading
-    if (table_data.loaded == False):
+    if (table_data.loaded == False or refresh):
         print("getting movie data...")
         table_data.table_data = requests.get(
             'http://' + 'backend:5000' + '/api/v1/view/movie-data?sorting_asc=true&sorting_field=title').json()
@@ -50,12 +52,16 @@ def index():
 
     # genre filter
     genre = request.args.get('filter_genre', None, type=str)
+    if(genre == 'Filter'):
+        genre = None
     if (genre):
         table_data.table_data = requests.get(
             'http://' + 'backend:5000' + '/api/v1/view/movie-data?sorting_asc=true&sorting_field=title&genre=' + genre).json()
 
     # date filter
     year_range = request.args.get('year_range', None, type=str)
+    if(year_range == 'Filter'):
+        year_range = None
     year = request.args.get('year', None, type=str)
     if (year_range and year):  # both fields have to present for date filter to work
         query_str = 'http://' + 'backend:5000' + \
@@ -82,6 +88,8 @@ def index():
 
     # ratings filter
     rating_range = request.args.get('rating_range', None, type=str)
+    if(rating_range == 'Filter'):
+        rating_range = None
     rating = request.args.get('rating_1', None, type=str)
     if (rating_range and rating):  # both fields have to present for date filter to work
         query_str = 'http://' + 'backend:5000' + \
@@ -117,6 +125,8 @@ def index():
 
     # search based on title, director and actor
     search_column = request.args.get('search-choice', None, type=str)
+    if(search_column == 'Search By'):
+        search_column = None
     search_value = request.args.get('search-value', None, type=str)
     if (search_column and search_value):
         query_str = 'http://' + 'backend:5000' + \
@@ -328,7 +338,7 @@ def generate_text_stats(genre_data):
     if(worst_genre == "(no genres listed)"):
         worst_genre = temp[-2]["genre"]
         worst_score = temp[-2]["avg_rating"]
-    text = "Viewers in this group like " + fav_genre + ", " + fav_genre_2 + " and " + fav_genre_3 + " movies and dislike " + worst_genre + " movies."
+    text = "Viewers in this group like " + fav_genre + " the most, followed by " + fav_genre_2 + " and " + fav_genre_3 + " movies. Additionally, they dislike " + worst_genre + " movies."
     return text
 
 def generate_rating_stats(rating_history, movie_rating):
@@ -375,7 +385,10 @@ def group_analysis():
         movie_rating_line_data = requests.get(query_str_2).json()
         print("move line data", movie_rating_line_data)
         #get analysis text
-        text_graphs = generate_rating_stats(avg_rating_line_data["avg_ratings"], movie_rating_line_data["ratings"])
+        try:
+            text_graphs = generate_rating_stats(avg_rating_line_data["avg_ratings"], movie_rating_line_data["ratings"])
+        except ZeroDivisionError:
+            return redirect("/viewer-analytics?movieID=" + str(movie_id), code=302)
 
         #genre table
         query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/genre-rating/' + str(movie_id) + '/' +  str(user_group_stats)

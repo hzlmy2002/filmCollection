@@ -4,6 +4,7 @@ from flask_restx import Resource
 import numpy as np
 from flask_restx import reqparse
 from sql_executor import SqlExecutor
+from cache import cache
 
 # get all ratings of users for a particular movie in ASC order (to plot scatter plot)
 query_1 = 'SELECT Movies.movieID, User_ratings.userID, User_ratings.movielens_rating, User_ratings.timestamp FROM Movies, User_ratings \
@@ -37,6 +38,7 @@ query_4 = 'SELECT User_ratings.userID, AVG(User_ratings.movielens_rating) FROM U
 
 # all users to plot graph
 class GetAllUserRatingsForMovie(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self, movieID):
         command = ('SELECT Movies.movieID, User_ratings.userID, User_ratings.movielens_rating, User_ratings.timestamp FROM Movies, User_ratings \
                     WHERE Movies.movieID = User_ratings.movieID AND Movies.movieID = %s \
@@ -52,6 +54,7 @@ class GetAllUserRatingsForMovie(Resource):
 
 # to show statistic
 class GetAvgUserRatingForMovie(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self, movieID):
         command = ('SELECT Movies.movieID, Movies.title, ROUND(AVG(User_ratings.movielens_rating),2), Movies.rotten_tomatoes_rating FROM Movies, User_ratings \
                     WHERE Movies.movieID = User_ratings.movieID AND Movies.movieID = %s  \
@@ -68,6 +71,7 @@ class GetAvgUserRatingForMovie(Resource):
 #range = 'bad (1)',good (2)','amazing (3)'
 #to plot graph
 class GetNumUsersFromRatingGroupForSpecificMovie(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self, movieID, group):
         command =  ('SELECT COUNT(User_ratings.userID) FROM Movies, User_ratings \
                         WHERE Movies.movieID = User_ratings.movieID AND Movies.movieID = %s ')
@@ -87,6 +91,7 @@ class GetNumUsersFromRatingGroupForSpecificMovie(Resource):
 
 # returns each user (might want to get an average)
 class GetAvgRatingHistoryOfUsersInRatingGroup(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self, movieID, group):
         command = ('SELECT User_ratings.userID, ROUND(AVG(User_ratings.movielens_rating),2) FROM User_ratings \
                     WHERE User_ratings.userID IN ( \
@@ -110,6 +115,7 @@ class GetAvgRatingHistoryOfUsersInRatingGroup(Resource):
         return result_dict
     
 class GetRatingForMovieForUsersInRatingGroup(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self, movieID, group):
         command = ('SELECT User_ratings.userID, User_ratings.movielens_rating FROM User_ratings \
                     LEFT JOIN Movies on User_ratings.movieID = Movies.movieID \
@@ -134,6 +140,7 @@ class GetRatingForMovieForUsersInRatingGroup(Resource):
         return result_dict
     
 class GetAvgRatingInDiffGenresOfUsersInRatingGroup(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self, movieID, group):
         command = ('SELECT COUNT(User_ratings.userID), ROUND(AVG(User_ratings.movielens_rating),2), ROUND(COUNT(User_ratings.userID)/AVG(User_ratings.movielens_rating),2), Genres.genreID, Genres.genre \
                     FROM User_ratings \
