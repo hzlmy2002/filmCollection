@@ -262,12 +262,12 @@
         });
 
         var selectElementRating = document.getElementById("rating-options");
-        var otherOptionDiv = document.getElementById("other-rating");
-        selectElement.addEventListener("change", function() {
-          if (selectElement.value === "between") {
-            otherOptionDiv.style.display = "block";
+        var otherOptionDivRating = document.getElementById("other-rating");
+        selectElementRating.addEventListener("change", function() {
+          if (selectElementRating.value === "between_rating") {
+            otherOptionDivRating.style.display = "block";
           } else {
-            otherOptionDiv.style.display = "none";
+            otherOptionDivRating.style.display = "none";
           }
         });
 
