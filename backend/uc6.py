@@ -3,6 +3,7 @@ from flask import request
 from flask_restx import Resource
 import numpy as np
 from flask_restx import reqparse
+from cache import cache
 
 # constants
 RATING_COUNT = 50
@@ -18,30 +19,35 @@ EXTRA_CODE = 4
 
 # for each personality trait, which films are given the highest/lowest ratings?
 class AnalyseTraitToFilmRanking(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self, trait_code:int, highest:int):
         at = AnalyseTrait(dbConnection)
         return at.getFilmRanking(trait_code, highest)
 
 # for each personality trait, what ratings do users usually give (across all films)?
 class AnalyseTraitToFilmRatings(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self, trait_code:int):
         at = AnalyseTrait(dbConnection)
         return at.getFilmRatings(trait_code)
     
 # for each personality trait, which genres are given the highest/lowest ratings?
 class AnalyseTraitToGenreRanking(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self, trait_code:int, highest:int):
         at = AnalyseTrait(dbConnection)
         return at.getGenreRanking(trait_code, highest)
 
 # for a film, which personality trait liked/hated it most?
 class AnalyseFilmToTraits(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self, movieID:int, highest:int):
         at = AnalyseTrait(dbConnection)
         return at.getTraitFilmRanking(movieID, highest)
 
 # for a genre, which personality trait liked/hated it most?
 class AnalyseGenreToTraits(Resource):
+    @cache.cached(timeout=3600, query_string=True)
     def get(self, genreID:int, highest:int):
         at = AnalyseTrait(dbConnection)
         return at.getTraitGenreRanking(genreID, highest)
