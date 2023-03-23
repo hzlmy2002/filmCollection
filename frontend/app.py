@@ -1,4 +1,4 @@
-import requests
+import requests, operator
 from flask import Flask, render_template, request, make_response, redirect, url_for
 
 app = Flask(__name__)
@@ -193,25 +193,27 @@ def viewer_analytics():
                    "amazing" : round((amazing_ratings["num_users"]/num_users_rated) * 100, 2)
                     }
     
-    #detailed statistics
-    # user_group_stats = request.args.get('user_group', None, type=int)
-    # detail_stat_chart_data = []
-    # if(user_group_stats):
-    #     query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/rating-history/' + str(movie_id) + '/' +  str(user_group_stats)
-    #     avg_rating_line_data = requests.get(query_str).json()
-    #     print("avg line data", avg_rating_line_data)
-    #     query_str_2 = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/movie-rating/' + str(movie_id) + '/' +  str(user_group_stats)
-    #     movie_rating_line_data = requests.get(query_str_2).json()
-    #     print("move line data", movie_rating_line_data)
-    #     detail_stat_chart_data.append(avg_rating_line_data)
-    #     detail_stat_chart_data.append(movie_rating_line_data)
 
-
-    # print(scatter_plot_data)
-    # print("x-val", scatter_plot_data["timestamp"])
-    # print("y-val", scatter_plot_data["ratings"])
     return render_template('viewer_analytics_dashboard.html', movie_id=movie_id, summary_stats=summary_stats, scatter_plot_data=scatter_plot_data, pie_chart_data=pie_chart_data, user_ratios=user_ratios)
 
+
+def generate_text_stats(genre_data):
+    temp = sorted(genre_data, key=operator.itemgetter('avg_rating'), reverse=True)
+    fav_genre = temp[0]["genre"]
+    fav_score = temp[0]["avg_rating"]
+    worst_genre = temp[-1]["genre"]
+    worst_score = temp[-1]["avg_rating"]
+    if(fav_genre == "(no genres listed)"):
+        fav_genre = temp[1]["genre"]
+        fav_score = temp[1]["avg_rating"]
+    if(worst_genre == "(no genres listed)"):
+        worst_genre = temp[-2]["genre"]
+        worst_score = temp[-2]["avg_rating"]
+    text = "Viewers in this group like " + fav_genre + " movies the most with an average score of " + str(fav_score) +" and like " + worst_genre + " movies the least with an average score of " + str(worst_score)
+    return text
+
+def generate_rating_stats(rating_history, movie_rating):
+    pass
 
 @app.route('/viewer-group-details', methods=['GET'])
 def group_analysis():
@@ -219,16 +221,17 @@ def group_analysis():
     movie_id = request.args.get('movieID', None, type=int)
     print("movieId", movie_id)
 
-    movie_title = request.args.get('movieTitle', None, type=str)
-    print("movie_title", movie_title)
+    #movie_title = request.args.get('movieTitle', None, type=str)
+    #print("movie_title", movie_title)
 
-    group_percentage = request.args.get('percentage', None, type=int)
-    print("percentage", group_percentage)
+    # group_percentage = request.args.get('percentage', None, type=int)
+    # print("percentage", group_percentage)
 
     user_group_stats = request.args.get('user_group', None, type=int)
     print("user_group_stats", user_group_stats)
     avg_rating_line_data = None
     movie_rating_line_data = None
+    grouping = None
     if(user_group_stats):
         query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/rating-history/' + str(movie_id) + '/' +  str(user_group_stats)
         print("query str", query_str)
@@ -238,15 +241,27 @@ def group_analysis():
         movie_rating_line_data = requests.get(query_str_2).json()
         print("move line data", movie_rating_line_data)
 
-        #genre graph 
+        #genre table
         query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/genre-rating/' + str(movie_id) + '/' +  str(user_group_stats)
-        genre_rating_bar_data = requests.get(query_str).json()
-        print("genre bar data", genre_rating_bar_data)
-
+        genre_data = requests.get(query_str).json()
+        print("genre bar data", genre_data)
+        text = generate_text_stats(genre_data)
+        
+        #user label
+        if(user_group_stats == 1):
+            grouping = 'dislike'
+        elif(user_group_stats == 2):
+            grouping = "like"
+        elif(user_group_stats == 3):
+            grouping = "love"
+        
+        #get title 
+        query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/average-rating/' + str(movie_id)
+        movie_title = requests.get(query_str).json()[0]["title"]
     
 
 
-    return render_template('viewer_group_details.html', movie_title=movie_title, group_percentage=group_percentage, avg_rating_line_data=avg_rating_line_data, movie_rating_line_data=movie_rating_line_data, genre_rating_bar_data=genre_rating_bar_data)
+    return render_template('viewer_group_details.html', movie_title=movie_title, grouping=grouping, avg_rating_line_data=avg_rating_line_data, movie_rating_line_data=movie_rating_line_data, genre_data=genre_data, text=text)
 
 
 if __name__ == '__main__':
