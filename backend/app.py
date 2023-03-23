@@ -29,7 +29,7 @@ api.add_resource(GetMoviesData, '/api/v1/view/movie-data')
 #UC 2
 api.add_resource(GetMovieActors, '/api/v1/view/movie-actors/<int:movieID>')
 api.add_resource(MovieSearcher, '/api/v1/search/<string:column>/<string:value>')
-api.add_resource(MovieSearcherV2, '/api/v1/searchv2/<string:movieTitle>')
+api.add_resource(MovieSearcherV2, '/api/v1/searchv2/<int:movieID>')
 
 #UC 3
 api.add_resource(analyseGeneralRatingAPI, '/api/v1/rating/general/<int:movieID>')

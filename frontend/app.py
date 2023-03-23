@@ -131,8 +131,8 @@ def index():
 
 @app.route('/view-movie-data', methods=['GET'])
 def movie_details():
-    movie_title = request.args.get('title', 0, type=str)
-    movie_details = requests.get('http://' + 'backend:5000' + '/api/v1/searchv2/' + movie_title).json()
+    movieID = request.args.get('movieID', None, type=str)
+    movie_details = requests.get('http://' + 'backend:5000' + '/api/v1/searchv2/' + str(movieID)).json()
     print(movie_details)
     return render_template('movie_detail.html', movie_details=movie_details[0])
 
