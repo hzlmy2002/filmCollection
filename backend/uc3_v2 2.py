@@ -104,32 +104,8 @@ class GetAvgRatingHistoryOfUsersInRatingGroup(Resource):
         cursor.execute(command, (movieID,))
         result = cursor.fetchall()
         print("Rating history result", result)
-        result_dict = {"avg_ratings": [row[1] for row in result],
-                       "userId" : [row[0] for row in result]}
-        cursor.close()
-        return result_dict
-    
-class GetRatingForMovieForUsersInRatingGroup(Resource):
-    def get(self, movieID, group):
-        command = ('SELECT User_ratings.userID, User_ratings.movielens_rating FROM User_ratings \
-                    LEFT JOIN Movies on User_ratings.movieID = Movies.movieID \
-                    WHERE User_ratings.userID IN ( \
-	                    SELECT User_ratings.userID FROM Movies, User_ratings \
-	                    WHERE Movies.movieID = User_ratings.movieID AND Movies.movieID = %s ')
-        if(group == 1):
-            command = command + 'AND User_ratings.movielens_rating <= 2)'
-        elif(group == 2):
-            command = command + 'AND User_ratings.movielens_rating >2 AND User_ratings.movielens_rating <=4)'
-        elif(group == 3):
-            command = command + 'AND User_ratings.movielens_rating >4)'
-        command = command + ' AND Movies.movieID = %s;'
-        dbConnection.reconnect()
-        cursor=dbConnection.cursor()
-        cursor.execute(command, (movieID,movieID))
-        result = cursor.fetchall()
-        print("Rating history result", result)
-        result_dict = {"ratings": [row[1] for row in result],
-                       "userId" : [row[0] for row in result]}
+        result_dict = SqlExecutor().convert_to_dict(
+            result, ["userID", "avg_rating"])
         cursor.close()
         return result_dict
     

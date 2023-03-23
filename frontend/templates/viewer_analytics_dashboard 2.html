@@ -105,6 +105,12 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="footer">
+                                        <hr />
+                                        <div class="stats">
+                                            <i class="fas fa-envelope-open-text"></i> For this week
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -157,7 +163,6 @@
                                         <div class="stats">
                                             <i class="fas fa-calendar"></i> View more statistics
                                         </div>
-                                        <a class="btn btn-primary" href="/viewer-group-details?movieID={{movie_id}}&user_group=1" role="button">Link</a>
                                     </div>
                                 </div>
                             </div>
@@ -177,7 +182,6 @@
                                         <div class="stats">
                                             <i class="fas fa-calendar"></i> View more statistics
                                         </div>
-                                        <button type="button" class="btn btn-primary btn-sm">View</button>
                                     </div>
                                 </div>
                             </div>
@@ -197,37 +201,6 @@
                                         <div class="stats">
                                             <i class="fas fa-calendar"></i> View more statistics
                                         </div>
-                                        <button type="button" class="btn btn-primary btn-sm">View</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="detailed-stats" class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="content">
-                                        <div class="head">
-                                            <h5 class="mb-0">User Rating History</h5>
-                                            <p class="text-muted">Average user ratings of all movies over timestamp</p>
-                                        </div>
-                                        <div class="canvas-wrapper">
-                                            <canvas class="chart" id="user-rating-group-history"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="content">
-                                        <div class="head">
-                                            <h5 class="mb-0">Ratings in Genres</h5>
-                                            <p class="text-muted">Average ratings in genres users have rated</p>
-                                        </div>
-                                        <div class="canvas-wrapper">
-                                            <canvas class="chart" id="user-ratings"></canvas>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -241,16 +214,6 @@
     <script src="static/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="static/assets/vendor/chartsjs/Chart.min.js"></script>
     <script src="static/assets/js/script.js"></script>
-    <script>
-        function toggleDiv() {
-            var div = document.getElementById("detailed-stats");
-            if (div.style.display === "none") {
-              div.style.display = "block";
-            } else {
-              div.style.display = "none";
-            }
-          }
-    </script>
     <script>
         //CHART 1
         var userratingchart = document.getElementById("user-ratings");
@@ -296,7 +259,7 @@
 
         //CHART 2
         var saleschart = document.getElementById("sales");
-        var myChart2 = new Chart(saleschart, {
+        var myChart3 = new Chart(saleschart, {
             type: 'pie',
             data: {
                 labels: ["Bad (<2)", "Good (>=2 and <4)", "Amazing (>=4)"],
@@ -324,7 +287,7 @@
                 },
             }
             });
-        
+            
 
     </script>
 </body>

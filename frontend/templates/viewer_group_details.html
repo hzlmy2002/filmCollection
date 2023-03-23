@@ -28,7 +28,7 @@
                     <div class="row">
                         <div class="col-md-12 page-header">
                             <div class="page-pretitle">Viewer Overview</div>
-                            <h1 class="page-title">{{summary_stats["title"]}}</h1>
+                            <h1 class="page-title">Title</h1>
                         </div>
                     </div>
                     <div class="row">
@@ -44,7 +44,7 @@
                                         <div class="col-sm-8">
                                             <div class="detail">
                                                 <p class="detail-subtitle">Rotten Tomatoes Rating</p>
-                                                <span class="number">{{summary_stats["rotten_tomatoes_rating"]}} / 100</span>
+                                                <span class="number"> / 100</span>
                                             </div>
                                         </div>
                                     </div>
@@ -63,7 +63,7 @@
                                         <div class="col-sm-8">
                                             <div class="detail">
                                                 <p class="detail-subtitle">Average User Movielens Rating</p>
-                                                <span class="number">{{summary_stats["avg_rating"]}} / 5</span>
+                                                <span class="number"> / 5</span>
                                             </div>
                                         </div>
                                     </div>
@@ -82,7 +82,7 @@
                                         <div class="col-sm-8">
                                             <div class="detail">
                                                 <p class="detail-subtitle">Number of Users who rated this movie</p>
-                                                <span class="number">{{summary_stats["num_users_rated"]}}</span>
+                                                <span class="number"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -101,7 +101,7 @@
                                         <div class="col-sm-8">
                                             <div class="detail">
                                                 <p class="detail-subtitle">Overall Film Reaction</p>
-                                                <span class="number">{{summary_stats["reaction"]}}</span>
+                                                <span class="number"></span>
                                             </div>
                                         </div>
                                     </div>
@@ -148,7 +148,7 @@
                                     <div class="row">
                                         <div class="dfd text-center">
                                             <i class=""></i>
-                                            <h4 class="mb-0">{{user_ratios["dislike"]}} %</h4>
+                                            <h4 class="mb-0">%</h4>
                                             <p class="text-muted">OF VIEWERS DISLIKED THE FILM</p>
                                         </div>
                                     </div>
@@ -168,7 +168,7 @@
                                     <div class="row">
                                         <div class="dfd text-center">
                                             <i class=""></i>
-                                            <h4 class="mb-0">{{user_ratios["like"]}} %</h4>
+                                            <h4 class="mb-0"> %</h4>
                                             <p class="text-muted">OF VIEWERS LIKED THE FILM</p>
                                         </div>
                                     </div>
@@ -188,7 +188,7 @@
                                     <div class="row">
                                         <div class="dfd text-center">
                                             <i class=""></i>
-                                            <h4 class="mb-0">{{user_ratios["amazing"]}} %</h4>
+                                            <h4 class="mb-0">%</h4>
                                             <p class="text-muted">OF VIEWERS FOUND THE FILM AMAZING</p>
                                         </div>
                                     </div>
@@ -258,9 +258,9 @@
         var myChart1 = new Chart(userratingchart, {
             type: 'line',
             data: {
-                labels: {{scatter_plot_data["timestamp"]}},
+                labels: {{avg_rating_line_data["timestamp"]}},
                 datasets: [{
-                    data: {{scatter_plot_data["ratings"]}},
+                    data: {{avg_rating_line_data["ratings"]}},
                     backgroundColor: "rgba(48, 164, 255, 0.2)",
                     borderColor: "rgba(48, 164, 255, 0.8)",
                     fill: true,
@@ -301,7 +301,7 @@
             data: {
                 labels: ["Bad (<2)", "Good (>=2 and <4)", "Amazing (>=4)"],
                 datasets: [{
-                    data: {{pie_chart_data}},
+                    data: [1,2,3],
                     backgroundColor: ["#009688", "#795548", "#673AB7"],
                     hoverOffset: 3
                 }]

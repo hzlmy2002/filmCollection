@@ -193,11 +193,47 @@ def viewer_analytics():
                    "amazing" : round((amazing_ratings["num_users"]/num_users_rated) * 100, 2)
                     }
     
+    #detailed statistics
+    # user_group_stats = request.args.get('user_group', None, type=int)
+    # detail_stat_chart_data = []
+    # if(user_group_stats):
+    #     query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/rating-history/' + str(movie_id) + '/' +  str(user_group_stats)
+    #     avg_rating_line_data = requests.get(query_str).json()
+    #     print("avg line data", avg_rating_line_data)
+    #     query_str_2 = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/movie-rating/' + str(movie_id) + '/' +  str(user_group_stats)
+    #     movie_rating_line_data = requests.get(query_str_2).json()
+    #     print("move line data", movie_rating_line_data)
+    #     detail_stat_chart_data.append(avg_rating_line_data)
+    #     detail_stat_chart_data.append(movie_rating_line_data)
+
 
     # print(scatter_plot_data)
     # print("x-val", scatter_plot_data["timestamp"])
     # print("y-val", scatter_plot_data["ratings"])
-    return render_template('viewer_analytics_dashboard.html', summary_stats=summary_stats, scatter_plot_data=scatter_plot_data, pie_chart_data=pie_chart_data, user_ratios=user_ratios)
+    return render_template('viewer_analytics_dashboard.html', movie_id=movie_id, summary_stats=summary_stats, scatter_plot_data=scatter_plot_data, pie_chart_data=pie_chart_data, user_ratios=user_ratios)
+
+
+@app.route('/viewer-group-details', methods=['GET'])
+def group_analysis():
+
+    movie_id = request.args.get('movieID', None, type=int)
+    print("movieId", movie_id)
+
+    user_group_stats = request.args.get('user_group', None, type=int)
+    print("user_group_stats", movie_id)
+    avg_rating_line_data = None
+    movie_rating_line_data = None
+    if(user_group_stats):
+        query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/rating-history/' + str(movie_id) + '/' +  str(user_group_stats)
+        print("query str", query_str)
+        avg_rating_line_data = requests.get(query_str).json()
+        print("avg line data", avg_rating_line_data)
+        query_str_2 = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/movie-rating/' + str(movie_id) + '/' +  str(user_group_stats)
+        movie_rating_line_data = requests.get(query_str_2).json()
+        print("move line data", movie_rating_line_data)
+
+
+    return render_template('viewer_group_details.html', avg_rating_line_data=avg_rating_line_data, movie_rating_line_data=movie_rating_line_data)
 
 
 if __name__ == '__main__':

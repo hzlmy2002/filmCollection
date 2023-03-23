@@ -11,7 +11,8 @@ from movie_searcher import GetMovieActors, MovieSearcher, MovieSearcherV2
 from flask_caching import Cache
 
 from uc3 import analyseGeneralRatingAPI, analyseRatingByGenresAPI, analyseRatingSameGenresAPI, analyseRatingGroupGenresAPI
-from uc3_v2 import GetAllUserRatingsForMovie, GetAvgUserRatingForMovie, GetNumUsersFromRatingGroupForSpecificMovie, GetAvgRatingHistoryOfUsersInRatingGroup, GetAvgRatingInDiffGenresOfUsersInRatingGroup
+from uc3_v2 import GetAllUserRatingsForMovie, GetAvgUserRatingForMovie, GetNumUsersFromRatingGroupForSpecificMovie, GetAvgRatingHistoryOfUsersInRatingGroup, GetAvgRatingInDiffGenresOfUsersInRatingGroup, GetRatingForMovieForUsersInRatingGroup
+
 
 conn = None
 
@@ -38,8 +39,8 @@ api.add_resource(GetAllUserRatingsForMovie, '/api/v1/viewer-analysis/ratings/<in
 api.add_resource(GetAvgUserRatingForMovie, '/api/v1/viewer-analysis/average-rating/<int:movieID>')
 api.add_resource(GetNumUsersFromRatingGroupForSpecificMovie, '/api/v1/viewer-analysis/user-group/<int:movieID>/<int:group>')
 api.add_resource(GetAvgRatingHistoryOfUsersInRatingGroup, '/api/v1/viewer-analysis/rating-history/<int:movieID>/<int:group>')
+api.add_resource(GetRatingForMovieForUsersInRatingGroup, '/api/v1/viewer-analysis/movie-rating/<int:movieID>/<int:group>')
 api.add_resource(GetAvgRatingInDiffGenresOfUsersInRatingGroup, '/api/v1/viewer-analysis/genre-rating/<int:movieID>/<int:group>')
-
 
 
 
