@@ -194,6 +194,14 @@ def personality_analysis():
     genres = requests.get('http://backend:5000/api/v1/view/all-genres').json()
     data['genres'] = genres['all_genres']
 
+    # for a film, which personality trait liked it most?
+    movieID = request.args.get('movieID', 0, type=str)
+    title = request.args.get('title', 0, type=str)
+    if movieID != 0 and title != 0:
+        film_traits_ranking_url = f'http://backend:5000/api/v1/traits/film-traits-ranking/{movieID}'
+        data['film_traits_ranking'] = requests.get(film_traits_ranking_url).json()
+        data['film_traits_ranking_data'] = {"title": title}
+
     if request.method == 'POST':
 
         # for each personality trait, which films are given the highest/lowest ratings?

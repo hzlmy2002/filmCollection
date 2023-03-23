@@ -38,12 +38,12 @@ class AnalyseTraitToGenreRanking(Resource):
         at = AnalyseTrait(dbConnection)
         return at.getGenreRanking(trait_code, highest)
 
-# for a film, which personality trait liked/hated it most?
+# for a film, which personality trait liked it most?
 class AnalyseFilmToTraits(Resource):
     @cache.cached(timeout=3600, query_string=True)
-    def get(self, movieID:int, highest:int):
+    def get(self, movieID:int):
         at = AnalyseTrait(dbConnection)
-        return at.getTraitFilmRanking(movieID, highest)
+        return at.getTraitFilmRanking(movieID)
 
 # for a genre, which personality trait liked/hated it most?
 class AnalyseGenreToTraits(Resource):
@@ -145,7 +145,7 @@ class AnalyseTrait():
         
         return result_list
         
-    def getTraitFilmRanking(self, movieID:int, highest:int):
+    def getTraitFilmRanking(self, movieID:int):
         sql_statm = "SELECT p_avg_table.trait, ROUND(p_avg_table.ratings_avg, " + str(DECIMAL_PLACE) + ")"
         sql_statm += " FROM ("
         sql_statm += " SELECT 'openness' AS trait, AVG(p_ratings.rating) AS ratings_avg"
@@ -178,7 +178,7 @@ class AnalyseTrait():
         sql_statm += " WHERE p_users.extraversion > " + str(HIGH_SCORE)
         sql_statm += " AND p_ratings.movieID = " + str(movieID)
         sql_statm += " ) AS p_avg_table"
-        sql_statm += " ORDER BY p_avg_table.ratings_avg " + ("ASC" if highest == 0 else "DESC") + ";"
+        sql_statm += " ORDER BY p_avg_table.ratings_avg DESC;"
 
         cur = self.conn.cursor()
         cur.execute(sql_statm)

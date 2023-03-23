@@ -113,6 +113,21 @@
         {% endfor %}
     </table>
     {% endif %}
+    {% if data['film_traits_ranking'] %}
+    <h3>Analysing personality trait for film: {{ data['film_traits_ranking_data'].title }}</h2>
+    <table>
+        <tr>
+            <th>Personality</th>
+            <th>Ratings</th>
+        </tr>
+        {% for p in data['film_traits_ranking'] %}
+        <tr>
+            <td>{{ p.trait }}</td>
+            <td>{{ p.avg }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
 </div>
 <script>
 
