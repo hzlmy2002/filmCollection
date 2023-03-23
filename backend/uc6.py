@@ -38,12 +38,12 @@ class AnalyseTraitToGenreRanking(Resource):
         at = AnalyseTrait(dbConnection)
         return at.getGenreRanking(trait_code, highest)
 
-# for a film, which personality trait liked/hated it most?
+# for a film, which personality trait liked it most?
 class AnalyseFilmToTraits(Resource):
     @cache.cached(timeout=3600, query_string=True)
-    def get(self, movieID:int, highest:int):
+    def get(self, movieID:int):
         at = AnalyseTrait(dbConnection)
-        return at.getTraitFilmRanking(movieID, highest)
+        return at.getTraitFilmRanking(movieID)
 
 # for a genre, which personality trait liked/hated it most?
 class AnalyseGenreToTraits(Resource):
@@ -51,6 +51,12 @@ class AnalyseGenreToTraits(Resource):
     def get(self, genreID:int, highest:int):
         at = AnalyseTrait(dbConnection)
         return at.getTraitGenreRanking(genreID, highest)
+
+# return list of personality traits
+class GetAllTraits(Resource):
+    def get(self):
+        at = AnalyseTrait(dbConnection)
+        return at.getAllTraits()
 
 class AnalyseTrait():
     def __init__(self, conn) -> None:
@@ -78,7 +84,7 @@ class AnalyseTrait():
             movieID = row[0]
             title = row[1]
             ratings = row[2]
-            row_dict = {"movieID": movieID, "title": title, "ratings": ratings}
+            row_dict = {"title": title, "ratings": ratings}
             result_list.append(row_dict)
         
         return result_list
@@ -113,7 +119,7 @@ class AnalyseTrait():
         return result_dict
 
     def getGenreRanking(self, trait_code:int, highest:int):
-        sql_statm = "SELECT gen.genre, gen_avg_table.p_avg_ratings"
+        sql_statm = "SELECT gen.genre, ROUND(gen_avg_table.p_avg_ratings, " + str(DECIMAL_PLACE) + ")"
         sql_statm += " FROM `Genres` AS gen"
         sql_statm += " JOIN ("
         sql_statm += " SELECT mov_gen.genreID AS p_genreID, AVG(p_ratings.rating) AS p_avg_ratings"
@@ -122,9 +128,9 @@ class AnalyseTrait():
         sql_statm += " JOIN `Movie_Genres` AS mov_gen ON mov_gen.movieID = p_ratings.movieID"
         sql_statm += " WHERE p_users." + self.getTraitString(trait_code) + " > " + str(HIGH_SCORE)
         sql_statm += " GROUP BY mov_gen.genreID"
-        sql_statm += " ORDER BY AVG(p_ratings.rating) " + ("ASC" if highest == 0 else "DESC")
         sql_statm += " ) AS gen_avg_table ON p_genreID = gen.genreID"
-        sql_statm += " WHERE gen.genre != '(no genres listed)';"
+        sql_statm += " WHERE gen.genre != '(no genres listed)'"
+        sql_statm += " ORDER BY gen_avg_table.p_avg_ratings " + ("ASC" if highest == 0 else "DESC") + ";"
 
         cur = self.conn.cursor()
         cur.execute(sql_statm)
@@ -139,8 +145,8 @@ class AnalyseTrait():
         
         return result_list
         
-    def getTraitFilmRanking(self, movieID:int, highest:int):
-        sql_statm = "SELECT p_avg_table.trait, p_avg_table.ratings_avg"
+    def getTraitFilmRanking(self, movieID:int):
+        sql_statm = "SELECT p_avg_table.trait, ROUND(p_avg_table.ratings_avg, " + str(DECIMAL_PLACE) + ")"
         sql_statm += " FROM ("
         sql_statm += " SELECT 'openness' AS trait, AVG(p_ratings.rating) AS ratings_avg"
         sql_statm += " FROM `Personality_users` AS p_users"
@@ -172,7 +178,7 @@ class AnalyseTrait():
         sql_statm += " WHERE p_users.extraversion > " + str(HIGH_SCORE)
         sql_statm += " AND p_ratings.movieID = " + str(movieID)
         sql_statm += " ) AS p_avg_table"
-        sql_statm += " ORDER BY p_avg_table.ratings_avg " + ("ASC" if highest == 0 else "DESC") + ";"
+        sql_statm += " ORDER BY p_avg_table.ratings_avg DESC;"
 
         cur = self.conn.cursor()
         cur.execute(sql_statm)
@@ -188,7 +194,7 @@ class AnalyseTrait():
         return result_list
 
     def getTraitGenreRanking(self, genreID:int, highest:int):
-        sql_statm = "SELECT p_avg_table.trait, p_avg_table.ratings_avg"
+        sql_statm = "SELECT p_avg_table.trait, ROUND(p_avg_table.ratings_avg, " + str(DECIMAL_PLACE) + ")"
         sql_statm += " FROM ("
         sql_statm += " SELECT 'openness' AS trait, AVG(p_ratings.rating) AS ratings_avg"
         sql_statm += " FROM `Personality_users` AS p_users"
@@ -239,6 +245,15 @@ class AnalyseTrait():
             result_list.append(row_dict)
         
         return result_list
+
+    def getAllTraits(self):
+        traits = []
+        traits.append(self.getTraitString(OPEN_CODE))
+        traits.append(self.getTraitString(AGREE_CODE))
+        traits.append(self.getTraitString(EMO_CODE))
+        traits.append(self.getTraitString(CON_CODE))
+        traits.append(self.getTraitString(EXTRA_CODE))
+        return traits
 
     def getTraitString(self, trait_code:int):
         if trait_code == OPEN_CODE:
