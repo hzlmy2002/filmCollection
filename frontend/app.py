@@ -213,7 +213,27 @@ def generate_text_stats(genre_data):
     return text
 
 def generate_rating_stats(rating_history, movie_rating):
-    pass
+    agg_avg_rating_history = sum(rating_history) / len(rating_history)
+    agg_avg_movie_rating = sum(movie_rating) / len(movie_rating)
+    text = None
+    if(agg_avg_rating_history < agg_avg_movie_rating):
+        diff = agg_avg_movie_rating - agg_avg_rating_history
+        if(diff > 1):
+            text = "On average, viewers in this group scored this movie higher by " + str(round(diff,2)) + " than their usual rating"
+        else:
+            text = "On average, viewers in this group scored this movie very similar to their usual rating, however slightly higher by " + str(round(diff,2)) + " than their usual rating"
+    elif(agg_avg_rating_history > agg_avg_movie_rating):
+        diff = agg_avg_rating_history - agg_avg_movie_rating
+        if(diff > 1):
+            text = "On average, viewers in this group scored this movie lower by " + str(round(diff,2)) + " than their usual rating"
+        else:
+            text = "On average, viewers in this group scored this movie very similar to their usual rating, however slightly lower by " + str(round(diff,2)) + " than their usual rating"
+        
+    else:
+        text = "On average, viewers in this group scored this movie the same as their usual rating"
+
+    return text
+    
 
 @app.route('/viewer-group-details', methods=['GET'])
 def group_analysis():
@@ -233,6 +253,7 @@ def group_analysis():
     movie_rating_line_data = None
     grouping = None
     if(user_group_stats):
+        # line graphs
         query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/rating-history/' + str(movie_id) + '/' +  str(user_group_stats)
         print("query str", query_str)
         avg_rating_line_data = requests.get(query_str).json()
@@ -240,12 +261,15 @@ def group_analysis():
         query_str_2 = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/movie-rating/' + str(movie_id) + '/' +  str(user_group_stats)
         movie_rating_line_data = requests.get(query_str_2).json()
         print("move line data", movie_rating_line_data)
+        #get analysis text
+        text_graphs = generate_rating_stats(avg_rating_line_data["avg_ratings"], movie_rating_line_data["ratings"])
 
         #genre table
         query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/genre-rating/' + str(movie_id) + '/' +  str(user_group_stats)
         genre_data = requests.get(query_str).json()
         print("genre bar data", genre_data)
-        text = generate_text_stats(genre_data)
+        # get analysis text
+        text_table = generate_text_stats(genre_data)
         
         #user label
         if(user_group_stats == 1):
@@ -261,7 +285,7 @@ def group_analysis():
     
 
 
-    return render_template('viewer_group_details.html', movie_title=movie_title, grouping=grouping, avg_rating_line_data=avg_rating_line_data, movie_rating_line_data=movie_rating_line_data, genre_data=genre_data, text=text)
+    return render_template('viewer_group_details.html', movie_id=movie_id, movie_title=movie_title, grouping=grouping, avg_rating_line_data=avg_rating_line_data, movie_rating_line_data=movie_rating_line_data, genre_data=genre_data, text_table=text_table, text_graphs=text_graphs)
 
 
 if __name__ == '__main__':

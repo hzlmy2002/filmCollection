@@ -86,7 +86,7 @@
                                 <div class="content">
                                     <div class="head">
                                         <h5 class="mb-0">Rating Analysis</h5>
-                                        <p class="text-muted">Viewers in this group scored this movie lower than their usual rating</p>
+                                        <p class="text-muted">{{text_graphs}}</p>
                                     </div>
                                 </div>
                             </div>
@@ -128,10 +128,11 @@
                                     <div class="content">
                                         <div class="head">
                                             <h5 class="mb-0">Genre Analysis</h5>
-                                            <p class="text-muted">{{text}}</p>
+                                            <p class="text-muted">{{text_table}}</p>
                                         </div>
                                     </div>
                                 </div>
+                                <a class="btn btn-primary" href="/viewer-analytics?movieID={{movie_id}}" role="button">Back</a>
                             </div>
                         </div>
                     </div>
