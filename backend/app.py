@@ -8,6 +8,8 @@ from tag_analysis import GetTagsByGenre, GetTagsByRating
 from movie_searcher import GetMovieActors, MovieSearcher, MovieSearcherV2
 
 from uc3 import analyseGeneralRatingAPI, analyseRatingByGenresAPI, analyseRatingSameGenresAPI, analyseRatingGroupGenresAPI
+from uc3_v2 import GetAllUserRatingsForMovie, GetAvgUserRatingForMovie, GetNumUsersFromRatingGroupForSpecificMovie, GetAvgRatingHistoryOfUsersInRatingGroup, GetAvgRatingInDiffGenresOfUsersInRatingGroup, GetRatingForMovieForUsersInRatingGroup
+
 from uc5 import PredictMovieRating
 
 api = Api()
@@ -33,12 +35,18 @@ api.add_resource(GetMoviesData, '/api/v1/view/movie-data')
 # UC 2
 api.add_resource(GetMovieActors, '/api/v1/view/movie-actors/<int:movieID>')
 api.add_resource(MovieSearcher, '/api/v1/search/<string:column>/<string:value>')
-api.add_resource(MovieSearcherV2, '/api/v1/searchv2/<string:movieTitle>')
+api.add_resource(MovieSearcherV2, '/api/v1/searchv2/<int:movieID>')
 
 # UC 3
 api.add_resource(analyseGeneralRatingAPI, '/api/v1/rating/general/<int:movieID>')
 api.add_resource(analyseRatingByGenresAPI, '/api/v1/rating/genres/<int:movieID>/<int:genreID>')
 api.add_resource(analyseRatingSameGenresAPI, '/api/v1/rating/samegenres/<int:movieID>')
+api.add_resource(GetAllUserRatingsForMovie, '/api/v1/viewer-analysis/ratings/<int:movieID>')
+api.add_resource(GetAvgUserRatingForMovie, '/api/v1/viewer-analysis/average-rating/<int:movieID>')
+api.add_resource(GetNumUsersFromRatingGroupForSpecificMovie, '/api/v1/viewer-analysis/user-group/<int:movieID>/<int:group>')
+api.add_resource(GetAvgRatingHistoryOfUsersInRatingGroup, '/api/v1/viewer-analysis/rating-history/<int:movieID>/<int:group>')
+api.add_resource(GetRatingForMovieForUsersInRatingGroup, '/api/v1/viewer-analysis/movie-rating/<int:movieID>/<int:group>')
+api.add_resource(GetAvgRatingInDiffGenresOfUsersInRatingGroup, '/api/v1/viewer-analysis/genre-rating/<int:movieID>/<int:group>')
 
 # UC4
 api.add_resource(GetTagsByGenre, '/api/v1/tags/genre/<string:genre>')
