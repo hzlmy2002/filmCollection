@@ -28,7 +28,7 @@
                     <div class="row">
                         <div class="col-md-12 page-header">
                             <div class="page-pretitle">Viewer Overview</div>
-                            <h1 class="page-title">Title</h1>
+                            <h1 class="page-title">{{movie_title}}</h1>
                         </div>
                     </div>
                     <div class="row">
@@ -43,8 +43,8 @@
                                         </div>
                                         <div class="col-sm-8">
                                             <div class="detail">
-                                                <p class="detail-subtitle">Rotten Tomatoes Rating</p>
-                                                <span class="number"> / 100</span>
+                                                <p class="detail-subtitle">Percentage</p>
+                                                <span class="number"> {{group_percentage}} %</span>
                                             </div>
                                         </div>
                                     </div>
@@ -116,8 +116,8 @@
                                     <div class="card">
                                         <div class="content">
                                             <div class="head">
-                                                <h5 class="mb-0">Ratings Overview</h5>
-                                                <p class="text-muted">User ratings over timestamp</p>
+                                                <h5 class="mb-0">Ratings History</h5>
+                                                <p class="text-muted">Average of all ratings given by user</p>
                                             </div>
                                             <div class="canvas-wrapper">
                                                 <canvas class="chart" id="user-ratings"></canvas>
@@ -129,11 +129,11 @@
                                     <div class="card">
                                         <div class="content">
                                             <div class="head">
-                                                <h5 class="mb-0">Viewer Classification</h5>
-                                                <p class="text-muted">Reaction groups of users who rated </p>
+                                                <h5 class="mb-0">Movie Rating</h5>
+                                                <p class="text-muted">Rating given by user to this specific movie</p>
                                             </div>
                                             <div class="canvas-wrapper">
-                                                <canvas class="chart" id="sales"></canvas>
+                                                <canvas class="chart" id="user-movie-ratings"></canvas>
                                             </div>
                                         </div>
                                     </div>
@@ -142,91 +142,25 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-6 col-md-6 col-lg-3">
+                        <div class="col-md-8" style="center">
                             <div class="card">
-                                <div class="content">
-                                    <div class="row">
-                                        <div class="dfd text-center">
-                                            <i class=""></i>
-                                            <h4 class="mb-0">%</h4>
-                                            <p class="text-muted">OF VIEWERS DISLIKED THE FILM</p>
-                                        </div>
-                                    </div>
-                                    <div class="footer">
-                                        <hr />
-                                        <div class="stats">
-                                            <i class="fas fa-calendar"></i> View more statistics
-                                        </div>
-                                        <a class="btn btn-primary" href="/viewer-group-details?movieID={{movie_id}}&user_group=1" role="button">Link</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-md-6 col-lg-3">
-                            <div class="card">
-                                <div class="content">
-                                    <div class="row">
-                                        <div class="dfd text-center">
-                                            <i class=""></i>
-                                            <h4 class="mb-0"> %</h4>
-                                            <p class="text-muted">OF VIEWERS LIKED THE FILM</p>
-                                        </div>
-                                    </div>
-                                    <div class="footer">
-                                        <hr />
-                                        <div class="stats">
-                                            <i class="fas fa-calendar"></i> View more statistics
-                                        </div>
-                                        <button type="button" class="btn btn-primary btn-sm">View</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6 col-md-6 col-lg-3">
-                            <div class="card">
-                                <div class="content">
-                                    <div class="row">
-                                        <div class="dfd text-center">
-                                            <i class=""></i>
-                                            <h4 class="mb-0">%</h4>
-                                            <p class="text-muted">OF VIEWERS FOUND THE FILM AMAZING</p>
-                                        </div>
-                                    </div>
-                                    <div class="footer">
-                                        <hr />
-                                        <div class="stats">
-                                            <i class="fas fa-calendar"></i> View more statistics
-                                        </div>
-                                        <button type="button" class="btn btn-primary btn-sm">View</button>
-                                    </div>
-                                </div>
-                            </div>
+                                <h5 class="mb-0">Viewers in this group scored this movie lower than their usual rating</h5>
+                            <div>
                         </div>
                     </div>
-                    <div id="detailed-stats" class="col-md-12">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="content">
-                                        <div class="head">
-                                            <h5 class="mb-0">User Rating History</h5>
-                                            <p class="text-muted">Average user ratings of all movies over timestamp</p>
-                                        </div>
-                                        <div class="canvas-wrapper">
-                                            <canvas class="chart" id="user-rating-group-history"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="content">
-                                        <div class="head">
-                                            <h5 class="mb-0">Ratings in Genres</h5>
-                                            <p class="text-muted">Average ratings in genres users have rated</p>
-                                        </div>
-                                        <div class="canvas-wrapper">
-                                            <canvas class="chart" id="user-ratings"></canvas>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        <div class="content">
+                                            <div class="head">
+                                                <h5 class="mb-0">Genre Ratings</h5>
+                                                <p class="text-muted">Average of genre ratings given by users in this group</p>
+                                            </div>
+                                            <div class="canvas-wrapper">
+                                                <canvas class="chart" id="genre-ratings"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -242,27 +176,17 @@
     <script src="static/assets/vendor/chartsjs/Chart.min.js"></script>
     <script src="static/assets/js/script.js"></script>
     <script>
-        function toggleDiv() {
-            var div = document.getElementById("detailed-stats");
-            if (div.style.display === "none") {
-              div.style.display = "block";
-            } else {
-              div.style.display = "none";
-            }
-          }
-    </script>
-    <script>
         //CHART 1
         var userratingchart = document.getElementById("user-ratings");
 
-        var myChart1 = new Chart(userratingchart, {
+        var myChart1 = new Chart(userratingchart,{
             type: 'line',
             data: {
-                labels: {{avg_rating_line_data["timestamp"]}},
+            labels: {{avg_rating_line_data["userId"]}},
                 datasets: [{
-                    data: {{avg_rating_line_data["ratings"]}},
-                    backgroundColor: "rgba(48, 164, 255, 0.2)",
-                    borderColor: "rgba(48, 164, 255, 0.8)",
+                    data: {{avg_rating_line_data["avg_ratings"]}},
+                    backgroundColor: "rgba(219, 245, 250, 0.8)",
+                    borderColor: "rgba(80, 228, 253, 0.8)",
                     fill: true,
                     borderWidth: 1
                 }]
@@ -291,19 +215,22 @@
 
                 }
             }
-            });
+        });
 
 
         //CHART 2
-        var saleschart = document.getElementById("sales");
-        var myChart2 = new Chart(saleschart, {
-            type: 'pie',
+        var movieratingchart = document.getElementById("user-movie-ratings");
+
+        var myChart2 = new Chart(movieratingchart ,{
+            type: 'line',
             data: {
-                labels: ["Bad (<2)", "Good (>=2 and <4)", "Amazing (>=4)"],
+            labels: {{movie_rating_line_data["userId"]}},
                 datasets: [{
-                    data: [1,2,3],
-                    backgroundColor: ["#009688", "#795548", "#673AB7"],
-                    hoverOffset: 3
+                    data: {{movie_rating_line_data["ratings"]}},
+                    backgroundColor: "rgba(250, 224, 187, 0.8)",
+                    borderColor: "rgba(252, 166, 46, 0.8)",
+                    fill: true,
+                    borderWidth: 1
                 }]
             },
             options: {
@@ -313,17 +240,30 @@
                 },
                 plugins: {
                     legend: {
-                        display: true,
+                        display: false,
                         position: 'right',
                     },
                     title: {
-                        display: false,
-                        text: 'Total Value',
+                        display: true,
+                        text: 'Number of Visitors',
                         position: 'left',
                     },
                 },
+                scales: {
+                    y:{
+                        min: 0,
+                        max: 5
+                    }
+
+                }
             }
-            });
+        });
+        
+        //chart3
+
+
+       
+        
         
 
     </script>

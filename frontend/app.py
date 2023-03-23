@@ -219,8 +219,14 @@ def group_analysis():
     movie_id = request.args.get('movieID', None, type=int)
     print("movieId", movie_id)
 
+    movie_title = request.args.get('movieTitle', None, type=str)
+    print("movie_title", movie_title)
+
+    group_percentage = request.args.get('percentage', None, type=int)
+    print("percentage", group_percentage)
+
     user_group_stats = request.args.get('user_group', None, type=int)
-    print("user_group_stats", movie_id)
+    print("user_group_stats", user_group_stats)
     avg_rating_line_data = None
     movie_rating_line_data = None
     if(user_group_stats):
@@ -232,8 +238,15 @@ def group_analysis():
         movie_rating_line_data = requests.get(query_str_2).json()
         print("move line data", movie_rating_line_data)
 
+        #genre graph 
+        query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/genre-rating/' + str(movie_id) + '/' +  str(user_group_stats)
+        genre_rating_bar_data = requests.get(query_str).json()
+        print("genre bar data", genre_rating_bar_data)
 
-    return render_template('viewer_group_details.html', avg_rating_line_data=avg_rating_line_data, movie_rating_line_data=movie_rating_line_data)
+    
+
+
+    return render_template('viewer_group_details.html', movie_title=movie_title, group_percentage=group_percentage, avg_rating_line_data=avg_rating_line_data, movie_rating_line_data=movie_rating_line_data, genre_rating_bar_data=genre_rating_bar_data)
 
 
 if __name__ == '__main__':

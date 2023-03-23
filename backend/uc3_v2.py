@@ -155,8 +155,8 @@ class GetAvgRatingInDiffGenresOfUsersInRatingGroup(Resource):
         cursor.execute(command, (movieID,))
         result = cursor.fetchall()
         print("Genre rating result", result)
-        result_dict = SqlExecutor().convert_to_dict(
-            result, ["avg_rating", "genreID", "Genre"])
+        result_dict = {"avg_ratings": [row[0] for row in result],
+                       "genres" : [row[2] for row in result]}
         cursor.close()
         return result_dict
     
