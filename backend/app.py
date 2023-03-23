@@ -7,6 +7,7 @@ from tag_analysis import GetTagsByGenre, GetTagsByRating
 from movie_searcher import GetMovieActors, MovieSearcher, MovieSearcherV2
 
 from uc3 import analyseGeneralRatingAPI, analyseRatingByGenresAPI, analyseRatingSameGenresAPI, analyseRatingGroupGenresAPI
+from uc5 import PredictMovieRating
 
 api = Api()
 
@@ -45,3 +46,6 @@ api.add_resource(analyseRatingSameGenresAPI,
 # UC4
 api.add_resource(GetTagsByGenre, '/api/v1/tags/genre/<string:genre>')
 api.add_resource(GetTagsByRating, '/api/v1/tags/rating/<int:rating>')
+
+# UC5
+api.add_resource(PredictMovieRating, '/api/v1/predict')
