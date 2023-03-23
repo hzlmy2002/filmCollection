@@ -1,6 +1,7 @@
 services:
   db:
     build: database
+    command: ['--max-allowed-packet=128M']
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database:/docker-entrypoint-initdb.d
@@ -8,7 +9,7 @@ services:
       test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 --password=$MYSQL_ROOT_PASSWORD --silent']
       interval: 2s
       retries: 5
-      start_period: 60s
+      start_period: 90s
     environment:
       - MYSQL_DATABASE=films
       - MYSQL_ROOT_PASSWORD=film
@@ -23,6 +24,12 @@ services:
       - "8090:80"
     environment:
       PMA_HOSTS: db
+
+  redis:
+    image: redis
+    restart: always
+    expose:
+      - 6379
 
   backend:
     stdin_open: true
@@ -39,6 +46,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   frontend:
     stdin_open: true

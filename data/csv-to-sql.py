@@ -31,24 +31,10 @@ def write_to_table(table_name:str, values:list):
     insert_table = 'INSERT INTO `' + table_name +'` VALUES\n'
     table = lock_table + insert_table
 
+    print("write_to_table:", table_name, "-", len(values), "values")
+
     for value in values:
-        formatted = []
-        for field in value:
-            if type(field) == datetime:
-                formatted.append(("'" + str(field)[:-9] + "'"))
-            elif field == None or field == 'N/A' or field == '':
-                formatted.append("NULL")
-            elif type(field) == str and (field.replace('.','',1)).isdigit():
-                formatted.append(field)
-            elif type(field) == str:
-                field = field.replace("'", "\\'")
-                formatted.append(("'" + field + "'"))
-            else:
-                formatted.append(field)
-        table = table + '('
-        for f in formatted:
-            table = table + str(f) + ','
-        table = table[:-1] + '),\n'
+        table = table + '(' + ','.join(value) + '),\n'
     table = table[:-2] + ';\n'
 
     unlock_table = 'UNLOCK TABLES;\n'
@@ -94,6 +80,20 @@ with open('csv-files/tags.csv', 'r') as f:
     next(reader, None)  # skip the header
     for row in reader:
         tags_csv.append(row)
+
+person_data_csv = []
+with open('csv-files/personality-data.csv', 'r') as f:
+    reader = csv.reader(f)
+    next(reader, None)  # skip the header
+    for row in reader:
+        person_data_csv.append(row)
+
+person_ratings_csv = []
+with open('csv-files/personality-ratings.csv', 'r') as f:
+    reader = csv.reader(f)
+    next(reader, None)  # skip the header
+    for row in reader:
+        person_ratings_csv.append(row)
 
 movies_dict = {}
 genreID_dict = {}
@@ -151,19 +151,60 @@ for rate in ratings_csv:
     movieID = rate[1]
     rating = rate[2]
     timestamp = rate[3]
+    timestamp_format = "NULL" if (timestamp == None or timestamp == 'N/A' or timestamp == '') else timestamp
 
     if movieID in movies_dict:
-        user_ratings_values.append([userID, movieID, timestamp, rating])
+        user_ratings_values.append([userID, movieID, timestamp_format, rating])
 
 user_tags_values = []
 for t in tags_csv:
     userID = t[0]
     movieID = t[1]
     tag = t[2]
+    tag_format = "'" + tag.replace("'", "\\'") + "'"
     timestamp = t[3]
+    timestamp_format = "NULL" if (timestamp == None or timestamp == 'N/A' or timestamp == '') else timestamp
 
     if movieID in movies_dict:
-        user_tags_values.append([userID, movieID, timestamp, tag])
+        user_tags_values.append([userID, movieID, timestamp_format, tag_format])
+
+person_data_values = []
+person_data_userID = []
+for user in person_data_csv:
+    userID = user[0].strip()
+    userID_format = "'" + userID.replace("'", "\\'") + "'"
+    openness = user[1].strip()
+    openness_format = "NULL" if (openness == None or openness == 'N/A' or openness == '') else openness
+    agreeableness = user[2].strip()
+    agreeableness_format = "NULL" if (agreeableness == None or agreeableness == 'N/A' or agreeableness == '') else agreeableness
+    emotional_stability = user[3].strip()
+    emotional_stability_format = "NULL" if (emotional_stability == None or emotional_stability == 'N/A' or emotional_stability == '') else emotional_stability
+    conscientiousness = user[4].strip()
+    conscientiousness_format = "NULL" if (conscientiousness == None or conscientiousness == 'N/A' or conscientiousness == '') else conscientiousness
+    extraversion = user[5].strip()
+    extraversion_format = "NULL" if (extraversion == None or extraversion == 'N/A' or extraversion == '') else extraversion
+
+    if userID not in person_data_userID:
+        person_data_userID.append(userID) # personality-data.csv contains duplicate lines
+        person_data_values.append([userID_format, openness_format, agreeableness_format, emotional_stability_format, conscientiousness_format, extraversion_format])
+
+person_ratings_values = []
+person_ratings_IDs = {} # userID: [movieID]
+for rate in person_ratings_csv:
+    userID = rate[0].strip()
+    userID_format = "'" + userID.replace("'", "\\'") + "'"
+    movieID = rate[1].strip()
+    rating = rate[2].strip()
+    rating_format = "NULL" if (rating == None or rating == 'N/A' or rating == '') else rating
+    timestamp = rate[3].strip()
+    timestamp_format = "NULL" if timestamp == 'N/A' else ("'" + str(datetime.strptime(timestamp,'%Y-%m-%d %H:%M:%S')) + "'")
+    
+    if (userID in person_data_userID) and (movieID in movies_dict):
+        if userID not in person_ratings_IDs:
+            person_ratings_IDs[userID] = []
+        if (userID in person_ratings_IDs) and (movieID not in person_ratings_IDs[userID]):
+            person_ratings_IDs[userID].append(movieID) # personality-ratings.csv contains duplicate lines
+            person_ratings_values.append([userID_format, movieID, timestamp_format, rating_format])
 
 movies_values = []
 movie_genres_values = []
@@ -174,40 +215,49 @@ tmdb_link_values = []
 
 for movieID in movies_dict:
     title = movies_dict[movieID]["title"]
+    title_format = "NULL" if (title == None or title == 'N/A' or title == '') else ("'" + title.replace("'", "\\'") + "'")
     content = movies_dict[movieID]["content"]
+    content_format = "NULL" if (content == None or content == 'N/A' or content == '') else ("'" + content.replace("'", "\\'") + "'")
     date = movies_dict[movieID]["date"]
+    date_format = "NULL" if (date == None or date == 'N/A' or date == '') else ("'" + str(date)[:-9] + "'")
     rotten_tomatoes_rating = movies_dict[movieID]["rotten_tomatoes_rating"]
-    movies_values.append([movieID, title, content, date, rotten_tomatoes_rating])
+    rotten_tomatoes_rating_format = "NULL" if (rotten_tomatoes_rating == None or rotten_tomatoes_rating == 'N/A' or rotten_tomatoes_rating == '') else rotten_tomatoes_rating
+    movies_values.append([movieID, title_format, content_format, date_format, rotten_tomatoes_rating_format])
 
     genres = movies_dict[movieID]["genres"]
     for g in genres:
-        movie_genres_values.append([movieID, genreID_dict[g]])
+        movie_genres_values.append([movieID, str(genreID_dict[g])])
 
     directors = movies_dict[movieID]["directors"]
     for d in directors:
-        movie_directors_values.append([movieID, directorID_dict[d]])
+        movie_directors_values.append([movieID, str(directorID_dict[d])])
 
     actors = movies_dict[movieID]["actors"]
     for a in actors:
-        movie_actors_values.append([movieID, actorID_dict[a]])
+        movie_actors_values.append([movieID, str(actorID_dict[a])])
 
     imdbID = movies_dict[movieID]["imdbID"]
-    links_values.append([movieID, imdbID])
+    imdbID_format = "NULL" if (imdbID == None or imdbID == 'N/A' or imdbID == '') else imdbID
+    links_values.append([movieID, imdbID_format])
 
     tmdbID = movies_dict[movieID]["tmdbID"]
-    tmdb_link_values.append([imdbID, tmdbID])
+    tmdbID_format = "NULL" if (tmdbID == None or tmdbID == 'N/A' or tmdbID == '') else tmdbID
+    tmdb_link_values.append([imdbID, tmdbID_format])
 
 genres_values = []
 for genre in genreID_dict:
-    genres_values.append([genreID_dict[genre], genre])
+    genre_format = "NULL" if (genre == None or genre == 'N/A' or genre == '') else ("'" + genre.replace("'", "\\'") + "'")
+    genres_values.append([str(genreID_dict[genre]), genre_format])
 
 director_values = []
 for director in directorID_dict:
-    director_values.append([directorID_dict[director], director])
+    director_format = "NULL" if (director == None or director == 'N/A' or director == '') else ("'" + director.replace("'", "\\'") + "'")
+    director_values.append([str(directorID_dict[director]), director_format])
 
 actor_values = []
 for actor in actorID_dict:
-    actor_values.append([actorID_dict[actor], actor])
+    actor_format = "NULL" if (actor == None or actor == 'N/A' or actor == '') else ("'" + actor.replace("'", "\\'") + "'")
+    actor_values.append([str(actorID_dict[actor]), actor_format])
 
 print("data pre-processing complete!")
 
@@ -313,6 +363,22 @@ actors_table = create_table(
 )
 sql_lines.append(actors_table)
 
+person_data_table = create_table(
+    "Personality_users",
+    ["userID", "openness", "agreeableness", "emotional_stability", "conscientiousness", "extraversion"],
+    ["varchar(255)", "double", "double", "double", "double", "double"],
+    ["userID"]
+)
+sql_lines.append(person_data_table)
+
+person_rating_table = create_table(
+    "Personality_ratings",
+    ["userID", "movieID", "timestamp", "rating"],
+    ["varchar(255)", "int(11)", "datetime", "double"],
+    ["userID", "movieID"]
+)
+sql_lines.append(person_rating_table)
+
 print("table creation complete!")
 
 # insert data into tables
@@ -350,6 +416,12 @@ sql_lines.append(write_movie_actors_table)
 write_actor_table = write_to_table("Actors", actor_values)
 sql_lines.append(write_actor_table)
 
+write_person_data_table = write_to_table("Personality_users", person_data_values)
+sql_lines.append(write_person_data_table)
+
+write_person_rating_table = write_to_table("Personality_ratings", person_ratings_values)
+sql_lines.append(write_person_rating_table)
+
 print("table writing complete!")
 
 # write to sql file
@@ -357,7 +429,10 @@ print("table writing complete!")
 f = open('../database/' + db_name + '.sql', 'w')
 
 for line in sql_lines:
-    f.write(line + '\n')
+    if line == sql_lines[-1]:
+        f.write(line)
+    else:
+        f.write(line + '\n')
 
 f.close()
 
