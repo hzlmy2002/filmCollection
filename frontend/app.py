@@ -198,8 +198,10 @@ def viewer_analytics():
 
 
 def generate_text_stats(genre_data):
-    temp = sorted(genre_data, key=operator.itemgetter('avg_rating'), reverse=True)
+    temp = sorted(genre_data, key=operator.itemgetter('ratio'), reverse=True)
     fav_genre = temp[0]["genre"]
+    fav_genre_2 = temp[1]["genre"]
+    fav_genre_3 = temp[2]["genre"]
     fav_score = temp[0]["avg_rating"]
     worst_genre = temp[-1]["genre"]
     worst_score = temp[-1]["avg_rating"]
@@ -209,7 +211,7 @@ def generate_text_stats(genre_data):
     if(worst_genre == "(no genres listed)"):
         worst_genre = temp[-2]["genre"]
         worst_score = temp[-2]["avg_rating"]
-    text = "Viewers in this group like " + fav_genre + " movies the most with an average score of " + str(fav_score) +" and like " + worst_genre + " movies the least with an average score of " + str(worst_score)
+    text = "Viewers in this group like " + fav_genre + ", " + fav_genre_2 + " and " + fav_genre_3 + " movies and dislike " + worst_genre + " movies."
     return text
 
 def generate_rating_stats(rating_history, movie_rating):

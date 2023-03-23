@@ -105,14 +105,18 @@
                                                 <thead class="success">
                                                     <tr>
                                                         <th>Genres</th>
-                                                        <th class="text-end">Average Ratings</th>
+                                                        <th>Num Users</th>
+                                                        <th>Average Ratings</th>
+                                                        <th>Num Users / Average Ratings </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {% for genre in genre_data %}
                                                     <tr>
                                                         <td>{{genre.genre}}</td>
-                                                        <td class="text-end">{{genre.avg_rating}}</td>
+                                                        <td>{{genre.num_users}}</td>
+                                                        <td>{{genre.avg_rating}}</td>
+                                                        <td>{{genre.ratio}}</td>
                                                     </tr>
                                                     {% endfor %}
                                                 </tbody>

@@ -36,11 +36,11 @@ class MovieSearcher(Resource):
         if column == "actor_name":
             command += ("LEFT JOIN Movie_Actors ON Movies.movieID = Movie_Actors.movieID "
                         "LEFT JOIN Actors ON Movie_Actors.actorID = Actors.actorID ")
-        command += f"WHERE LOWER(%s) LIKE %\"%s\"%"
+        command += "WHERE LOWER("+column+") LIKE %s"
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
 
-        cursor.execute(command, (column,value))
+        cursor.execute(command, (f'%{value}%',))
         result = cursor.fetchall()
         result_dict = SqlExecutor().convert_to_dict(
             result, ["movieID", "title", "date", "rotten_tomatoes_rating"])

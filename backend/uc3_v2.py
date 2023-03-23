@@ -93,11 +93,11 @@ class GetAvgRatingHistoryOfUsersInRatingGroup(Resource):
 	                    SELECT User_ratings.userID FROM Movies, User_ratings \
 	                    WHERE Movies.movieID = User_ratings.movieID AND Movies.movieID = %s ')
         if(group == 1):
-            command = command + 'AND User_ratings.movielens_rating <= 2)'
+            command = command + 'AND User_ratings.movielens_rating < 2)'
         elif(group == 2):
-            command = command + 'AND User_ratings.movielens_rating >2 AND User_ratings.movielens_rating <=4)'
+            command = command + 'AND User_ratings.movielens_rating >=2 AND User_ratings.movielens_rating <4)'
         elif(group == 3):
-            command = command + 'AND User_ratings.movielens_rating >4)'
+            command = command + 'AND User_ratings.movielens_rating >=4)'
         command = command + ' GROUP BY User_ratings.userID;'
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
@@ -117,11 +117,11 @@ class GetRatingForMovieForUsersInRatingGroup(Resource):
 	                    SELECT User_ratings.userID FROM Movies, User_ratings \
 	                    WHERE Movies.movieID = User_ratings.movieID AND Movies.movieID = %s ')
         if(group == 1):
-            command = command + 'AND User_ratings.movielens_rating <= 2)'
+            command = command + 'AND User_ratings.movielens_rating < 2)'
         elif(group == 2):
-            command = command + 'AND User_ratings.movielens_rating >2 AND User_ratings.movielens_rating <=4)'
+            command = command + 'AND User_ratings.movielens_rating >=2 AND User_ratings.movielens_rating <4)'
         elif(group == 3):
-            command = command + 'AND User_ratings.movielens_rating >4)'
+            command = command + 'AND User_ratings.movielens_rating >=4)'
         command = command + ' AND Movies.movieID = %s;'
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
@@ -135,7 +135,7 @@ class GetRatingForMovieForUsersInRatingGroup(Resource):
     
 class GetAvgRatingInDiffGenresOfUsersInRatingGroup(Resource):
     def get(self, movieID, group):
-        command = ('SELECT ROUND(AVG(User_ratings.movielens_rating),2), Genres.genreID, Genres.genre \
+        command = ('SELECT COUNT(User_ratings.userID), ROUND(AVG(User_ratings.movielens_rating),2), ROUND(COUNT(User_ratings.userID)/AVG(User_ratings.movielens_rating),2), Genres.genreID, Genres.genre \
                     FROM User_ratings \
                     LEFT JOIN Movies on User_ratings.movieID = Movies.movieID \
                     LEFT JOIN Movie_Genres on Movies.movieID = Movie_Genres.movieID \
@@ -144,11 +144,11 @@ class GetAvgRatingInDiffGenresOfUsersInRatingGroup(Resource):
                         SELECT User_ratings.userID FROM Movies, User_ratings \
                         WHERE Movies.movieID = User_ratings.movieID AND Movies.movieID = %s ')
         if(group == 1):
-            command = command + 'AND User_ratings.movielens_rating <= 2)'
+            command = command + 'AND User_ratings.movielens_rating < 2)'
         elif(group == 2):
-            command = command + 'AND User_ratings.movielens_rating >2 AND User_ratings.movielens_rating <=4)'
+            command = command + 'AND User_ratings.movielens_rating >=2 AND User_ratings.movielens_rating <4)'
         elif(group == 3):
-            command = command + 'AND User_ratings.movielens_rating >4)'
+            command = command + 'AND User_ratings.movielens_rating >=4)'
         command = command + ' GROUP BY Genres.genreID;'
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
@@ -156,8 +156,17 @@ class GetAvgRatingInDiffGenresOfUsersInRatingGroup(Resource):
         result = cursor.fetchall()
         print("Genre rating result", result)
         result_dict = SqlExecutor().convert_to_dict(
-            result, ["avg_rating", "genreID", "genre"])
+            result, ["num_users", "avg_rating","ratio", "genreID", "genre"])
         cursor.close()
         return result_dict
     
     #feature to find top 3 movies of users favourite genre
+
+    """
+    SELECT COUNT(User_ratings.userID), AVG(User_ratings.movielens_rating), COUNT(User_ratings.userID)/AVG(User_ratings.movielens_rating), Genres.genreID, Genres.genre FROM User_ratings 
+    LEFT JOIN Movies on User_ratings.movieID = Movies.movieID 
+    LEFT JOIN Movie_Genres on Movies.movieID = Movie_Genres.movieID 
+    LEFT JOIN Genres on Movie_Genres.genreID = Genres.genreID WHERE User_ratings.userID IN ( 
+        SELECT User_ratings.userID FROM Movies, User_ratings WHERE Movies.movieID = User_ratings.movieID AND Movies.movieID = 99114 AND User_ratings.movielens_rating < 2) 
+        GROUP BY Genres.genreID;
+    """
