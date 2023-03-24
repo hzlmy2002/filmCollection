@@ -1,0 +1,228 @@
+<!doctype html>
+<!-- 
+*reference
+* Website: https://github.com/alexis-luna/bootstrap-simple-admin-template
+-->
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Viewer Dashboard</title>
+    <link href="static/assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="static/assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
+    <link href="static/assets/vendor/fontawesome/css/brands.min.css" rel="stylesheet">
+    <link href="static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/assets/css/master.css" rel="stylesheet">
+    <link href="static/assets/vendor/flagiconcss/css/flag-icon.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="row">
+        <button id="personality-button" class="btn btn-primary" type="submit">By personality</button>
+        <button id="movie-id-button" class="btn btn-primary" type="submit">By movieID</button>
+    <div>
+    <div id="movie-id-div" class="wrapper" style="display: none; flex-direction: column; align-items: center;">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 page-header">
+                        <div class="page-pretitle">Rating Prediction</div>
+                        <h1 class="page-title">Predict user ratings based on movieID</h1>
+                        </div>
+                    </div>
+                </div>
+                <form style="align-items: center">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="row">
+                                    <div class="col-sm-8" style="center">
+                                        <div class="detail">
+                                            <p class="detail-subtitle">MovieID</p>
+                                        </div>
+                                        <input name="movieID" type="text">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
+            {% if prediction %}
+            <div class="row" style="align-items: center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="content">
+                            <div class="head">
+                                <h5 class="mb-0">Result</h5>
+                                <p class="text-muted">The predicted movie rating is: {{prediction}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <a class="btn btn-primary" href="/" role="button">Back</a>
+            </div>
+        </div>
+    </div>
+    <div id="personality-div" class="wrapper" style="display: flex; flex-direction: column; align-items: center;">
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 page-header">
+                        <div class="page-pretitle">Rating Prediction</div>
+                        <h1 class="page-title">Predict user ratings based on personality</h1>
+                    </div>
+                </div>
+                <form>
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6 col-lg-3 mt-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="col-sm-8" style="center">
+                                            <div class="detail">
+                                                <p class="detail-subtitle">Openness</p>
+                                            </div>
+                                            <input name="openness" type="range" value="3" min="0" max="7" oninput="this.nextElementSibling.value = this.value">
+                                            <output>3</output>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-3 mt-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="col-sm-8" style="center">
+                                            <div class="detail">
+                                                <p class="detail-subtitle">Agreeableness</p>
+                                            </div>
+                                            <input name="agreeableness" type="range" value="3" min="0" max="7" oninput="this.nextElementSibling.value = this.value">
+                                            <output>3</output>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-3 mt-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="col-sm-8" style="center">
+                                            <div class="detail">
+                                                <p class="detail-subtitle">Emotional Stability</p>
+                                            </div>
+                                            <input name="emotional_stability" type="range" value="3" min="0" max="7" oninput="this.nextElementSibling.value = this.value">
+                                            <output>3</output>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-3 mt-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="col-sm-8" style="center">
+                                            <div class="detail">
+                                                <p class="detail-subtitle">Conscientiousness</p>
+                                            </div>
+                                            <input name="conscientiousness" type="range" value="3" min="0" max="7" oninput="this.nextElementSibling.value = this.value">
+                                            <output>3</output>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-6 col-lg-3 mt-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="col-sm-8" style="center">
+                                            <div class="detail">
+                                                <p class="detail-subtitle">Extraversion</p>
+                                            </div>
+                                            <input name="extraversion" type="range" value="3" min="0" max="7" oninput="this.nextElementSibling.value = this.value">
+                                            <output>3</output>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6 col-lg-3 mt-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="col-sm-8" style="center">
+                                            <div class="detail">
+                                                <p class="detail-subtitle">Rating</p>
+                                            </div>
+                                            <input name="rating" type="text">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
+                {% if prediction %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="content">
+                                <div class="head">
+                                    <h5 class="mb-0">Result</h5>
+                                    <p class="text-muted">The predicted movie rating is: {{prediction}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                <a class="btn btn-primary" href="/" role="button">Back</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const toggleButton = document.getElementById('movie-id-button');
+    const toggleDiv = document.getElementById('movie-id-div');
+
+    const toggleButtonPersonal = document.getElementById('personality-button');
+    const toggleDivPersonal = document.getElementById('personality-div');
+
+    toggleButton.addEventListener('click', () => {
+    if (toggleDiv.style.display === 'none') {
+        toggleDiv.style.display = 'block';
+        toggleDivPersonal.style.display = 'none';
+    } else{
+        toggleDiv.style.display = 'none';
+        toggleDivPersonal.style.display = 'block';
+    }
+    });
+
+
+    toggleButtonPersonal.addEventListener('click', () => {
+        if (toggleDivPersonal.style.display === 'none') {
+            toggleDivPersonal.style.display = 'block';
+            toggleDiv.style.display = 'none';
+        }  else{
+            toggleDivPersonal.style.display = 'none';
+            toggleDiv.style.display = 'block';
+
+        }
+        });
+</script>
+</body>
+
+</html>
+
+

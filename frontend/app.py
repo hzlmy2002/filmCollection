@@ -413,6 +413,26 @@ def group_analysis():
 
     return render_template('viewer_group_details.html', movie_id=movie_id, movie_title=movie_title, grouping=grouping, avg_rating_line_data=avg_rating_line_data, movie_rating_line_data=movie_rating_line_data, genre_data=genre_data, text_table=text_table, text_graphs=text_graphs)
 
+@app.route('/rating-prediction', methods=['GET'])
+def predict_rating():
+    openness = request.args.get('openness', None, type=int)
+    agreeableness = request.args.get('agreeableness', None, type=int)
+    emotional_stability = request.args.get('emotional_stability', None, type=int)
+    conscientiousness = request.args.get('conscientiousness', None, type=int)
+    extraversion = request.args.get('extraversion', None, type=int)
+    rating = request.args.get('rating',None, type=int)
+
+    prediction = None
+    if(openness and agreeableness and emotional_stability and conscientiousness and extraversion and rating):
+        query_str = 'http://backend:5000/api/v1/predict?' + "openness=" + str(openness) + "&agreeableness=" + str(agreeableness) + "&emotional_stability=" + str(emotional_stability) + "&conscientiousness=" + str(conscientiousness) + "&extraversion=" + str(extraversion) + "&rating=" + str(rating)
+        print(query_str)
+        prediction = requests.get(query_str).json()["result"]
+
+
+    print(prediction)
+
+
+    return render_template('prediction.html', prediction=prediction)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)

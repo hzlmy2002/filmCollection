@@ -30,7 +30,7 @@ class PredictMovieRating(Resource):
         params.append(args.rating)
         pred=Predictor()
         result=pred.predict(params)
-        return result[0]
+        return {"result":result[0]}
 
 class PredictMovieIDRating(Resource):
     @cache.cached(timeout=3600, query_string=True)
