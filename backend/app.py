@@ -10,7 +10,7 @@ from movie_searcher import GetMovieActors, MovieSearcher, MovieSearcherV2
 from uc3 import analyseGeneralRatingAPI, analyseRatingByGenresAPI, analyseRatingSameGenresAPI, analyseRatingGroupGenresAPI
 from uc3_v2 import GetAllUserRatingsForMovie, GetAvgUserRatingForMovie, GetNumUsersFromRatingGroupForSpecificMovie, GetAvgRatingHistoryOfUsersInRatingGroup, GetAvgRatingInDiffGenresOfUsersInRatingGroup, GetRatingForMovieForUsersInRatingGroup
 
-from uc5 import PredictMovieRating
+from uc5 import PredictMovieRating, PredictMovieIDRating
 
 api = Api()
 
@@ -54,6 +54,7 @@ api.add_resource(GetTagsByRating, '/api/v1/tags/rating/<int:rating>')
 
 # UC5
 api.add_resource(PredictMovieRating, '/api/v1/predict')
+api.add_resource(PredictMovieIDRating, '/api/v1/predict/movie/<int:movieID>')
 
 #UC 6
 api.add_resource(AnalyseTraitToFilmRanking, '/api/v1/traits/trait-film-ranking/<int:trait_code>/<int:highest>')

@@ -32,6 +32,23 @@ class PredictMovieRating(Resource):
         result=pred.predict(params)
         return result[0]
 
+class PredictMovieIDRating(Resource):
+    @cache.cached(timeout=3600, query_string=True)
+    def get(self,movieID):
+        dbConnection.reconnect()
+        cursor=dbConnection.cursor()
+        statm="select Personality_users.openness, Personality_users.agreeableness,Personality_users.emotional_stability , Personality_users.conscientiousness , Personality_users.extraversion, Personality_ratings.rating from Movies, Personality_ratings, Personality_users where Personality_users.userID = Personality_ratings.userID and Movies.movieID=Personality_ratings.movieID and Movies.rotten_tomatoes_rating is not NULL and Movies.movieID=%s"
+        cursor.execute(statm,(movieID,))
+        result=cursor.fetchall()
+        cursor.close()
+        if len(result)==0:
+            return -1
+        ratings=[]
+        pred=Predictor()
+        for row in result:
+            prediction=pred.predict(row)
+            ratings.append(prediction[0])
+        return sum(ratings)/len(ratings)
 
 
 
