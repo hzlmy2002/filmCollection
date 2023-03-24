@@ -235,6 +235,14 @@ def personality_analysis():
             genre_traits_ranking_url = f'http://backend:5000/api/v1/traits/genre-traits-ranking/{genreID}/{highest}'
             data['genre_traits_ranking'] = requests.get(genre_traits_ranking_url).json()
             data['genre_traits_ranking_data'] = {"genre": data['genres'][int(genreID) - 1], "highest": ("Highest to lowest" if int(highest) == 1 else "Lowest to highest")}
+        
+        # for a genre, which degrees of a personality trait liked it most?
+        genreID = request.form.get('genre_trait_range_genre')
+        trait_code = request.form.get('genre_trait_range_trait')
+        if genreID is not None and trait_code is not None:
+            genre_trait_range_url = f'http://backend:5000/api/v1/traits/genre-trait-range/{trait_code}/{genreID}'
+            data['genre_trait_range'] = requests.get(genre_trait_range_url).json()
+            data['genre_trait_range_data'] = {"genre": data['genres'][int(genreID) - 1], "trait": data['traits'][int(trait_code)]}
 
     return render_template('personality_analysis.html', data=data)
 
