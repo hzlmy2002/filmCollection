@@ -33,8 +33,12 @@ def write_to_table(table_name:str, values:list):
 
     print("write_to_table:", table_name, "-", len(values), "values")
 
+    i = 0
     for value in values:
         table = table + '(' + ','.join(value) + '),\n'
+        i += 1
+        if i % 10000 == 0:
+            print(i, "/", len(values))
     table = table[:-2] + ';\n'
 
     unlock_table = 'UNLOCK TABLES;\n'
@@ -151,7 +155,7 @@ for rate in ratings_csv:
     movieID = rate[1]
     rating = rate[2]
     timestamp = rate[3]
-    timestamp_format = "NULL" if (timestamp == None or timestamp == 'N/A' or timestamp == '') else timestamp
+    timestamp_format = "NULL" if (timestamp == None or timestamp == 'N/A' or timestamp == '') else ("'" + str(datetime.fromtimestamp(int(timestamp))) + "'")
 
     if movieID in movies_dict:
         user_ratings_values.append([userID, movieID, timestamp_format, rating])
@@ -163,7 +167,7 @@ for t in tags_csv:
     tag = t[2]
     tag_format = "'" + tag.replace("'", "\\'") + "'"
     timestamp = t[3]
-    timestamp_format = "NULL" if (timestamp == None or timestamp == 'N/A' or timestamp == '') else timestamp
+    timestamp_format = "NULL" if (timestamp == None or timestamp == 'N/A' or timestamp == '') else ("'" + str(datetime.fromtimestamp(int(timestamp))) + "'")
 
     if movieID in movies_dict:
         user_tags_values.append([userID, movieID, timestamp_format, tag_format])
@@ -190,6 +194,7 @@ for user in person_data_csv:
 
 person_ratings_values = []
 person_ratings_IDs = {} # userID: [movieID]
+i = 0
 for rate in person_ratings_csv:
     userID = rate[0].strip()
     userID_format = "'" + userID.replace("'", "\\'") + "'"
@@ -197,7 +202,7 @@ for rate in person_ratings_csv:
     rating = rate[2].strip()
     rating_format = "NULL" if (rating == None or rating == 'N/A' or rating == '') else rating
     timestamp = rate[3].strip()
-    timestamp_format = "NULL" if timestamp == 'N/A' else ("'" + str(datetime.strptime(timestamp,'%Y-%m-%d %H:%M:%S')) + "'")
+    timestamp_format = "NULL" if (timestamp == None or timestamp == 'N/A' or timestamp == '') else ("'" + str(datetime.strptime(timestamp,'%Y-%m-%d %H:%M:%S')) + "'")
     
     if (userID in person_data_userID) and (movieID in movies_dict):
         if userID not in person_ratings_IDs:
@@ -205,6 +210,10 @@ for rate in person_ratings_csv:
         if (userID in person_ratings_IDs) and (movieID not in person_ratings_IDs[userID]):
             person_ratings_IDs[userID].append(movieID) # personality-ratings.csv contains duplicate lines
             person_ratings_values.append([userID_format, movieID, timestamp_format, rating_format])
+
+    i += 1
+    if i % 10000 == 0:
+        print(i, "/", len(person_ratings_csv))
 
 movies_values = []
 movie_genres_values = []
@@ -214,12 +223,18 @@ links_values = []
 tmdb_link_values = []
 
 for movieID in movies_dict:
-    title = movies_dict[movieID]["title"]
+    if movies_dict[movieID]["title"][-5:-1].isnumeric():
+        title = movies_dict[movieID]["title"][:-7]
+    else:
+        title = movies_dict[movieID]["title"]
     title_format = "NULL" if (title == None or title == 'N/A' or title == '') else ("'" + title.replace("'", "\\'") + "'")
     content = movies_dict[movieID]["content"]
     content_format = "NULL" if (content == None or content == 'N/A' or content == '') else ("'" + content.replace("'", "\\'") + "'")
     date = movies_dict[movieID]["date"]
-    date_format = "NULL" if (date == None or date == 'N/A' or date == '') else ("'" + str(date)[:-9] + "'")
+    if movies_dict[movieID]["title"][-5:-1].isnumeric():
+        date_format = ("'" + movies_dict[movieID]["title"][-5:-1] + "-01-01'") if (date == None or date == 'N/A' or date == '') else ("'" + str(date)[:-9] + "'")
+    else:
+        date_format = "NULL" if (date == None or date == 'N/A' or date == '') else ("'" + str(date)[:-9] + "'")
     rotten_tomatoes_rating = movies_dict[movieID]["rotten_tomatoes_rating"]
     rotten_tomatoes_rating_format = "NULL" if (rotten_tomatoes_rating == None or rotten_tomatoes_rating == 'N/A' or rotten_tomatoes_rating == '') else rotten_tomatoes_rating
     movies_values.append([movieID, title_format, content_format, date_format, rotten_tomatoes_rating_format])
@@ -286,7 +301,7 @@ sql_lines.append(movies_table)
 user_ratings_table = create_table(
     "User_ratings",
     ["userID", "movieID", "timestamp", "movielens_rating"],
-    ["int(11)", "int(11)", "int(11)", "double"],
+    ["int(11)", "int(11)", "datetime", "double"],
     ["userID", "movieID", "movielens_rating"]
 )
 sql_lines.append(user_ratings_table)
@@ -294,7 +309,7 @@ sql_lines.append(user_ratings_table)
 user_tags_table = create_table(
     "User_tags",
     ["userID", "movieID", "timestamp", "movielens_tag"],
-    ["int(11)", "int(11)", "int(11)", "varchar(511)"],
+    ["int(11)", "int(11)", "datetime", "varchar(511)"],
     ["userID", "movieID", "movielens_tag"]
 )
 sql_lines.append(user_tags_table)
