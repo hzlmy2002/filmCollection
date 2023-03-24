@@ -23,6 +23,8 @@ class GetMovieActors(Resource):
 class MovieSearcher(Resource):
     @cache.cached(timeout=3600, query_string=True)
     def get(self, column, value):
+        print("column", column)
+        print("value", value)
         command = ("SELECT DISTINCT Movies.movieID, Movies.title, Movies.date, Movies.rotten_tomatoes_rating "
                    "FROM Movies "
                    "LEFT JOIN Movie_Directors ON Movies.movieID = Movie_Directors.movieID "
@@ -30,12 +32,10 @@ class MovieSearcher(Resource):
         if column == "actor_name":
             command += ("LEFT JOIN Movie_Actors ON Movies.movieID = Movie_Actors.movieID "
                         "LEFT JOIN Actors ON Movie_Actors.actorID = Actors.actorID ")
-        if column not in ["title","actor_name","director_name"]:
-            column = "title"
         command += "WHERE LOWER("+column+") LIKE %s"
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
-        value=value.lower()
+
         cursor.execute(command, (f'%{value}%',))
         result = cursor.fetchall()
         result_dict = SqlExecutor().convert_to_dict(
@@ -50,17 +50,17 @@ class MovieSearcher(Resource):
 
 class MovieSearcherV2(Resource):
     @cache.cached(timeout=3600, query_string=True)
-    def get(self, movieTitle):
+    def get(self, movieID):
         command = ("SELECT DISTINCT Movies.movieID, Movies.title, Movies.content, Movies.date, Movies.rotten_tomatoes_rating, Directors.director_name "
                    "FROM Movies "
                    "LEFT JOIN Movie_Directors ON Movies.movieID = Movie_Directors.movieID "
                    "LEFT JOIN Directors ON Movie_Directors.directorID = Directors.directorID "
                    "LEFT JOIN Movie_Actors ON Movies.movieID = Movie_Actors.movieID "
                     "LEFT JOIN Actors ON Movie_Actors.actorID = Actors.actorID ")
-        command += "WHERE LOWER(Movies.title) LIKE %s"
+        command += f"WHERE Movies.movieID = %s"
         dbConnection.reconnect()
         cursor=dbConnection.cursor()
-        cursor.execute(command, (f'%{movieTitle}%',))
+        cursor.execute(command, (movieID,))
         result = cursor.fetchall()
         cursor.close()
         result_dict = SqlExecutor().convert_to_dict(

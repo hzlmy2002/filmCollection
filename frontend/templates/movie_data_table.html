@@ -229,7 +229,8 @@
                             <td>{{ movie.rotten_tomatoes_rating }}</td>
                             <td>{{ movie.genres }}</td>
                             <td>
-                                <a href="view-movie-data?title={{movie.title}}" class="view" title="View" data-toggle="tooltip"><i class="material-icons">&#xE417;</i></a>
+                                <a href="view-movie-data?movieID={{movie.movieID}}" class="view" title="View" data-toggle="tooltip"><i class="material-icons">&#xE417;</i></a>
+                                <a href="viewer-analytics?movieID={{movie.movieID}}" class="viewer-analytics" title="Viewer Analytics" data-toggle="tooltip"><i class="fa fa-bar-chart" aria-hidden="true">&#xE417;</i></a>
                                 <a href="personality-analysis?title={{movie.title}}&movieID={{movie.movieID}}" class="film-traits" title="Film Traits" data-toggle="tooltip"><i class="fa fa-users" aria-hidden="true">&#xE417;</i></a>
                             </td>
                         </tr>
@@ -243,8 +244,11 @@
                         {% for i in range( page.pages ) %}
                         <li class="page-item"><a href="/?page_num={{i}}" class="page-link">{{i}}</a></li>
                         {% endfor %}
-                        <li class="page-item"><a href="#" class="page-link"><i class="fa fa-angle-double-right"></i></a></li>
+                        <li class="page-item"><a href="/" class="page-link"><i class="fa fa-angle-double-right"></i></a></li>
                     </ul>
+                </div>
+                <div class="row">
+                    <a href="/?refresh=True" role="button" class="btn btn-secondary btn-sm">Refresh</a>
                 </div>
             </div>
         </div>        
@@ -262,12 +266,12 @@
         });
 
         var selectElementRating = document.getElementById("rating-options");
-        var otherOptionDiv = document.getElementById("other-rating");
-        selectElement.addEventListener("change", function() {
-          if (selectElement.value === "between") {
-            otherOptionDiv.style.display = "block";
+        var otherOptionDivRating = document.getElementById("other-rating");
+        selectElementRating.addEventListener("change", function() {
+          if (selectElementRating.value === "between_rating") {
+            otherOptionDivRating.style.display = "block";
           } else {
-            otherOptionDiv.style.display = "none";
+            otherOptionDivRating.style.display = "none";
           }
         });
 

@@ -1,11 +1,10 @@
-import requests
+import requests, operator
 from flask import Flask, render_template, request, make_response, redirect, url_for
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
 
 app = Flask(__name__)
-# api = Api(app, doc='/api/docs')
 
 
 class TableLoader:
@@ -34,8 +33,10 @@ table_data = TableLoader()
 @app.route('/', methods=['GET'])
 def index():
 
+    refresh = request.args.get('refresh', False, type=bool)
+
     # intial loading
-    if (table_data.loaded == False):
+    if (table_data.loaded == False or refresh):
         print("getting movie data...")
         table_data.table_data = requests.get(
             'http://' + 'backend:5000' + '/api/v1/view/movie-data?sorting_asc=true&sorting_field=title').json()
@@ -51,12 +52,16 @@ def index():
 
     # genre filter
     genre = request.args.get('filter_genre', None, type=str)
+    if(genre == 'Filter'):
+        genre = None
     if (genre):
         table_data.table_data = requests.get(
             'http://' + 'backend:5000' + '/api/v1/view/movie-data?sorting_asc=true&sorting_field=title&genre=' + genre).json()
 
     # date filter
     year_range = request.args.get('year_range', None, type=str)
+    if(year_range == 'Filter'):
+        year_range = None
     year = request.args.get('year', None, type=str)
     if (year_range and year):  # both fields have to present for date filter to work
         query_str = 'http://' + 'backend:5000' + \
@@ -83,6 +88,8 @@ def index():
 
     # ratings filter
     rating_range = request.args.get('rating_range', None, type=str)
+    if(rating_range == 'Filter'):
+        rating_range = None
     rating = request.args.get('rating_1', None, type=str)
     if (rating_range and rating):  # both fields have to present for date filter to work
         query_str = 'http://' + 'backend:5000' + \
@@ -118,6 +125,8 @@ def index():
 
     # search based on title, director and actor
     search_column = request.args.get('search-choice', None, type=str)
+    if(search_column == 'Search By'):
+        search_column = None
     search_value = request.args.get('search-value', None, type=str)
     if (search_column and search_value):
         query_str = 'http://' + 'backend:5000' + \
@@ -140,9 +149,8 @@ def index():
 
 @app.route('/view-movie-data', methods=['GET'])
 def movie_details():
-    movie_title = request.args.get('title', 0, type=str)
-    movie_details = requests.get(
-        'http://' + 'backend:5000' + '/api/v1/searchv2/' + movie_title).json()
+    movieID = request.args.get('movieID', None, type=str)
+    movie_details = requests.get('http://' + 'backend:5000' + '/api/v1/searchv2/' + str(movieID)).json()
     print(movie_details)
     return render_template('movie_detail.html', movie_details=movie_details[0])
 
@@ -272,6 +280,153 @@ def draw_ratings_pie_chart(results):
     chart.seek(0)
 
     return base64.b64encode(chart.getvalue()).decode('utf-8')
+
+@app.route('/viewer-analytics', methods=['GET'])
+def viewer_analytics():
+    movie_id = request.args.get('movieID', None, type=int)
+    print("Movie ID", movie_id)
+
+    #scattler plot
+    query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/ratings/' + str(movie_id)
+    scatter_plot_data = requests.get(query_str).json()
+
+    #pie chart
+    #bad ratings
+    query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/user-group/' + str(movie_id) + '/1'
+    bad_ratings = requests.get(query_str).json()
+
+    #good ratings
+    query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/user-group/' + str(movie_id) + '/2'
+    good_ratings = requests.get(query_str).json()
+
+    #amazingratings
+    query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/user-group/' + str(movie_id) + '/3'
+    amazing_ratings = requests.get(query_str).json()
+
+    pie_chart_data = [bad_ratings["num_users"], good_ratings["num_users"], amazing_ratings["num_users"]]
+
+    print("pie chart data", pie_chart_data)
+
+    num_users_rated = bad_ratings["num_users"] + good_ratings["num_users"] + amazing_ratings["num_users"]
+    #summary statistics
+    #movie title and rotten tomatoes
+
+    #Avg User Rating 
+    query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/average-rating/' + str(movie_id)
+    sum_stat = requests.get(query_str).json()[0]
+    print("Sum stat", sum_stat)
+    reaction = None
+    if(sum_stat["avg_rating"] < 2):
+        reaction = 'Bad'
+    elif(sum_stat["avg_rating"] >= 2 and sum_stat["avg_rating"] < 4):
+        reaction = 'Good'
+    else:
+        reaction = 'Amazing'
+    
+    summary_stats = { "title" : sum_stat['title'],
+                     "rotten_tomatoes_rating" : sum_stat['rotten_tomatoes_rating'],
+                     "avg_rating" : sum_stat['avg_rating'],
+                     "reaction" : reaction,
+                     "num_users_rated" : num_users_rated
+                    }
+    
+    user_ratios = { "dislike" : round((bad_ratings["num_users"]/num_users_rated) * 100, 2),
+                   "like" : round((good_ratings["num_users"]/num_users_rated) * 100, 2),
+                   "amazing" : round((amazing_ratings["num_users"]/num_users_rated) * 100, 2)
+                    }
+    
+
+    return render_template('viewer_analytics_dashboard.html', movie_id=movie_id, summary_stats=summary_stats, scatter_plot_data=scatter_plot_data, pie_chart_data=pie_chart_data, user_ratios=user_ratios)
+
+
+def generate_text_stats(genre_data):
+    temp = sorted(genre_data, key=operator.itemgetter('ratio'), reverse=True)
+    fav_genre = temp[0]["genre"]
+    fav_genre_2 = temp[1]["genre"]
+    fav_genre_3 = temp[2]["genre"]
+    fav_score = temp[0]["avg_rating"]
+    worst_genre = temp[-1]["genre"]
+    worst_score = temp[-1]["avg_rating"]
+    if(fav_genre == "(no genres listed)"):
+        fav_genre = temp[1]["genre"]
+        fav_score = temp[1]["avg_rating"]
+    if(worst_genre == "(no genres listed)"):
+        worst_genre = temp[-2]["genre"]
+        worst_score = temp[-2]["avg_rating"]
+    text = "Viewers in this group like " + fav_genre + " the most, followed by " + fav_genre_2 + " and " + fav_genre_3 + " movies. Additionally, they dislike " + worst_genre + " movies."
+    return text
+
+def generate_rating_stats(rating_history, movie_rating):
+    agg_avg_rating_history = sum(rating_history) / len(rating_history)
+    agg_avg_movie_rating = sum(movie_rating) / len(movie_rating)
+    text = None
+    if(agg_avg_rating_history < agg_avg_movie_rating):
+        diff = agg_avg_movie_rating - agg_avg_rating_history
+        if(diff > 1):
+            text = "On average, viewers in this group scored this movie higher by " + str(round(diff,2)) + " than their usual rating"
+        else:
+            text = "On average, viewers in this group scored this movie very similar to their usual rating, however slightly higher by " + str(round(diff,2)) + " than their usual rating"
+    elif(agg_avg_rating_history > agg_avg_movie_rating):
+        diff = agg_avg_rating_history - agg_avg_movie_rating
+        if(diff > 1):
+            text = "On average, viewers in this group scored this movie lower by " + str(round(diff,2)) + " than their usual rating"
+        else:
+            text = "On average, viewers in this group scored this movie very similar to their usual rating, however slightly lower by " + str(round(diff,2)) + " than their usual rating"
+        
+    else:
+        text = "On average, viewers in this group scored this movie the same as their usual rating"
+
+    return text
+    
+
+@app.route('/viewer-group-details', methods=['GET'])
+def group_analysis():
+
+    movie_id = request.args.get('movieID', None, type=int)
+    print("movieId", movie_id)
+
+    user_group_stats = request.args.get('user_group', None, type=int)
+    print("user_group_stats", user_group_stats)
+    avg_rating_line_data = None
+    movie_rating_line_data = None
+    grouping = None
+    if(user_group_stats):
+        # line graphs
+        query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/rating-history/' + str(movie_id) + '/' +  str(user_group_stats)
+        print("query str", query_str)
+        avg_rating_line_data = requests.get(query_str).json()
+        print("avg line data", avg_rating_line_data)
+        query_str_2 = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/movie-rating/' + str(movie_id) + '/' +  str(user_group_stats)
+        movie_rating_line_data = requests.get(query_str_2).json()
+        print("move line data", movie_rating_line_data)
+        #get analysis text
+        try:
+            text_graphs = generate_rating_stats(avg_rating_line_data["avg_ratings"], movie_rating_line_data["ratings"])
+        except ZeroDivisionError:
+            return redirect("/viewer-analytics?movieID=" + str(movie_id), code=302)
+
+        #genre table
+        query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/genre-rating/' + str(movie_id) + '/' +  str(user_group_stats)
+        genre_data = requests.get(query_str).json()
+        print("genre bar data", genre_data)
+        # get analysis text
+        text_table = generate_text_stats(genre_data)
+        
+        #user label
+        if(user_group_stats == 1):
+            grouping = 'dislike'
+        elif(user_group_stats == 2):
+            grouping = "like"
+        elif(user_group_stats == 3):
+            grouping = "love"
+        
+        #get title 
+        query_str = 'http://' + 'backend:5000' + '/api/v1/viewer-analysis/average-rating/' + str(movie_id)
+        movie_title = requests.get(query_str).json()[0]["title"]
+    
+
+
+    return render_template('viewer_group_details.html', movie_id=movie_id, movie_title=movie_title, grouping=grouping, avg_rating_line_data=avg_rating_line_data, movie_rating_line_data=movie_rating_line_data, genre_data=genre_data, text_table=text_table, text_graphs=text_graphs)
 
 
 if __name__ == '__main__':

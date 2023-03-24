@@ -1,0 +1,242 @@
+<!doctype html>
+<!-- 
+*reference
+* Website: https://github.com/alexis-luna/bootstrap-simple-admin-template
+-->
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Viewer Dashboard</title>
+    <link href="static/assets/vendor/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="static/assets/vendor/fontawesome/css/solid.min.css" rel="stylesheet">
+    <link href="static/assets/vendor/fontawesome/css/brands.min.css" rel="stylesheet">
+    <link href="static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/assets/css/master.css" rel="stylesheet">
+    <link href="static/assets/vendor/flagiconcss/css/flag-icon.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="wrapper">
+
+            <div class="content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12 page-header">
+                            <div class="page-pretitle">Viewer Overview</div>
+                            <h1 class="page-title">{{movie_title}}</h1>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-6 col-md-6 col-lg-3 mt-3">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <div class="detail">
+                                                <p class="detail-subtitle">Viewer Group</p>
+                                                <span class="number"> Viewers who {{grouping}} the film </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="content">
+                                            <div class="head">
+                                                <h5 class="mb-0">Ratings History</h5>
+                                                <p class="text-muted">Average of all ratings given by user</p>
+                                            </div>
+                                            <div class="canvas-wrapper">
+                                                <canvas class="chart" id="user-ratings"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="content">
+                                            <div class="head">
+                                                <h5 class="mb-0">Movie Rating</h5>
+                                                <p class="text-muted">Rating given by user to this specific movie</p>
+                                            </div>
+                                            <div class="canvas-wrapper">
+                                                <canvas class="chart" id="user-movie-ratings"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="content">
+                                    <div class="head">
+                                        <h5 class="mb-0">Rating Analysis</h5>
+                                        <p class="text-muted">{{text_graphs}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="content">
+                                        <div class="head">
+                                            <h5 class="mb-0">Genre Ratings</h5>
+                                            <p class="text-muted">Average ratings of genres that have been rated by users in this group</p>
+                                        </div>
+                                        <div class="canvas-wrapper">
+                                            <table class="table table-striped">
+                                                <thead class="success">
+                                                    <tr>
+                                                        <th>Genres</th>
+                                                        <th>Num Users</th>
+                                                        <th>Average Ratings</th>
+                                                        <th>Num Users / Average Ratings </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for genre in genre_data %}
+                                                    <tr>
+                                                        <td>{{genre.genre}}</td>
+                                                        <td>{{genre.num_users}}</td>
+                                                        <td>{{genre.avg_rating}}</td>
+                                                        <td>{{genre.ratio}}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="content">
+                                        <div class="head">
+                                            <h5 class="mb-0">Genre Analysis</h5>
+                                            <p class="text-muted">{{text_table}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a class="btn btn-primary" href="/viewer-analytics?movieID={{movie_id}}" role="button">Back</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="static/assets/vendor/jquery/jquery.min.js"></script>
+    <script src="static/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="static/assets/vendor/chartsjs/Chart.min.js"></script>
+    <script src="static/assets/js/script.js"></script>
+    <script>
+        //CHART 1
+        var userratingchart = document.getElementById("user-ratings");
+
+        var myChart1 = new Chart(userratingchart,{
+            type: 'line',
+            data: {
+            labels: {{avg_rating_line_data["userId"]}},
+                datasets: [{
+                    data: {{avg_rating_line_data["avg_ratings"]}},
+                    backgroundColor: "rgba(219, 245, 250, 0.8)",
+                    borderColor: "rgba(80, 228, 253, 0.8)",
+                    fill: true,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart',
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                        position: 'right',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Number of Visitors',
+                        position: 'left',
+                    },
+                },
+                scales: {
+                    y:{
+                        min: 0,
+                        max: 5
+                    }
+
+                }
+            }
+        });
+
+
+        //CHART 2
+        var movieratingchart = document.getElementById("user-movie-ratings");
+
+        var myChart2 = new Chart(movieratingchart ,{
+            type: 'line',
+            data: {
+            labels: {{movie_rating_line_data["userId"]}},
+                datasets: [{
+                    data: {{movie_rating_line_data["ratings"]}},
+                    backgroundColor: "rgba(250, 224, 187, 0.8)",
+                    borderColor: "rgba(252, 166, 46, 0.8)",
+                    fill: true,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart',
+                },
+                plugins: {
+                    legend: {
+                        display: false,
+                        position: 'right',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Number of Visitors',
+                        position: 'left',
+                    },
+                },
+                scales: {
+                    y:{
+                        min: 0,
+                        max: 5
+                    }
+
+                }
+            }
+        });
+        
+
+
+       
+        
+        
+
+    </script>
+</body>
+
+</html>
