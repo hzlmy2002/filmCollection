@@ -48,7 +48,7 @@ class PredictMovieIDRating(Resource):
         for row in result:
             prediction=pred.predict(row)
             ratings.append(prediction[0])
-        return sum(ratings)/len(ratings)
+        return {"result" : sum(ratings)/len(ratings)}
 
 
 

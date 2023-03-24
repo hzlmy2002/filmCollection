@@ -23,26 +23,28 @@
         <button id="personality-button" class="btn btn-primary" type="submit">By personality</button>
         <button id="movie-id-button" class="btn btn-primary" type="submit">By movieID</button>
     <div>
+
     <div id="movie-id-div" class="wrapper" style="display: none; flex-direction: column; align-items: center;">
         <div class="content">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12 page-header">
                         <div class="page-pretitle">Rating Prediction</div>
-                        <h1 class="page-title">Predict user ratings based on movieID</h1>
-                        </div>
+                        <h1 class="page-title">Predict user ratings based on moviedID</h1>
                     </div>
                 </div>
-                <form style="align-items: center">
+                <form>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-sm-6 col-md-6 col-lg-3 mt-3">
                             <div class="card">
-                                <div class="row">
-                                    <div class="col-sm-8" style="center">
-                                        <div class="detail">
-                                            <p class="detail-subtitle">MovieID</p>
+                                <div class="content">
+                                    <div class="row">
+                                        <div class="col-sm-8" style="center">
+                                            <div class="detail">
+                                                <p class="detail-subtitle">MovieID:</p>
+                                            </div>
+                                            <input name="movieID" type="text">
                                         </div>
-                                        <input name="movieID" type="text">
                                     </div>
                                 </div>
                             </div>
@@ -50,14 +52,14 @@
                     </div>
                     <button type="submit">Submit</button>
                 </form>
-            {% if prediction %}
+            {% if movie_id_pred %}
             <div class="row" style="align-items: center">
                 <div class="col-md-6">
                     <div class="card">
                         <div class="content">
                             <div class="head">
                                 <h5 class="mb-0">Result</h5>
-                                <p class="text-muted">The predicted movie rating is: {{prediction}}</p>
+                                <p class="text-muted">The predicted movie rating is: {{movie_id_pred}}</p>
                             </div>
                         </div>
                     </div>
@@ -199,6 +201,16 @@
     const toggleButtonPersonal = document.getElementById('personality-button');
     const toggleDivPersonal = document.getElementById('personality-div');
 
+    window.onload = function() {
+        if({{cur_option}} == "movieID"){
+            toggleDiv.style.display = 'block';
+            toggleDivPersonal.style.display = 'none';
+        }else{
+            toggleDiv.style.display = 'none';
+            toggleDivPersonal.style.display = 'block';
+        };
+    }
+
     toggleButton.addEventListener('click', () => {
     if (toggleDiv.style.display === 'none') {
         toggleDiv.style.display = 'block';
@@ -220,6 +232,8 @@
 
         }
         });
+    
+
 </script>
 </body>
 

@@ -415,6 +415,20 @@ def group_analysis():
 
 @app.route('/rating-prediction', methods=['GET'])
 def predict_rating():
+
+    cur_option = None
+
+    #prediction by movieID
+    movieID = request.args.get('movieID', None, type=int)
+    movie_id_pred = None
+    if(movieID):
+        query_str = "http://backend:5000/api/v1/predict/movie/" + str(movieID)
+        movie_id_pred = requests.get(query_str).json()["result"]
+        cur_option = "movieID"
+    print("movie id prediction", movie_id_pred)
+
+
+    #prediction by personality
     openness = request.args.get('openness', None, type=int)
     agreeableness = request.args.get('agreeableness', None, type=int)
     emotional_stability = request.args.get('emotional_stability', None, type=int)
@@ -429,10 +443,11 @@ def predict_rating():
         prediction = requests.get(query_str).json()["result"]
 
 
+
     print(prediction)
 
 
-    return render_template('prediction.html', prediction=prediction)
+    return render_template('prediction.html', prediction=prediction, movie_id_pred=movie_id_pred, cur_option=cur_option)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)
