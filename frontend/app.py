@@ -51,13 +51,14 @@ def index():
     # get arguments from frontend
     page_num = request.args.get('page_num', 0, type=int)
 
+    query_str = 'http://' + 'backend:5000' + \
+        '/api/v1/view/movie-data?sorting_asc=false&sorting_field=rotten_tomatoes_rating'
     # genre filter
     genre = request.args.get('filter_genre', None, type=str)
     if (genre == 'Filter'):
         genre = None
     if (genre):
-        table_data.table_data = requests.get(
-            'http://' + 'backend:5000' + '/api/v1/view/movie-data?sorting_asc=true&sorting_field=title&genre=' + genre).json()
+        query_str = query_str + '&genre=' + genre
 
     # date filter
     year_range = request.args.get('year_range', None, type=str)
@@ -65,8 +66,6 @@ def index():
         year_range = None
     year = request.args.get('year', None, type=str)
     if (year_range and year):  # both fields have to present for date filter to work
-        query_str = 'http://' + 'backend:5000' + \
-            '/api/v1/view/movie-data?sorting_asc=true&sorting_field=title'
         if (year_range == "before"):
             query_str = query_str + '&end_year=' + year
         elif (year_range == "after"):
@@ -85,23 +84,19 @@ def index():
                 end_year = year
             query_str = query_str + '&end_year=' + end_year + '&start_year=' + start_year
 
-        table_data.table_data = requests.get(query_str).json()
-
     # ratings filter
     rating_range = request.args.get('rating_range', None, type=str)
     if (rating_range == 'Filter'):
         rating_range = None
     rating = request.args.get('rating_1', None, type=str)
     if (rating_range and rating):  # both fields have to present for date filter to work
-        query_str = 'http://' + 'backend:5000' + \
-            '/api/v1/view/movie-data?sorting_asc=true&sorting_field=rotten_tomatoes_rating'
         if (rating_range == "lower"):
             query_str = query_str + '&to_rating=' + rating
         elif (rating_range == "higher"):
             query_str = query_str + '&from_rating=' + rating
         elif (rating_range == "at_rating"):
             query_str = query_str + '&to_rating=' + rating + '&from_rating=' + rating
-        elif (rating_range == "between"):
+        elif (rating_range == "between_rating"):
             start_rating = None
             end_rating = None
             other_rating = request.args.get('rating_2', None, type=str)
@@ -114,7 +109,7 @@ def index():
             query_str = query_str + '&from_rating=' + \
                 start_rating + '&to_rating=' + end_rating
 
-        table_data.table_data = requests.get(query_str).json()
+    table_data.table_data = requests.get(query_str).json()
 
     # sorting
     sorting_field = request.args.get('sort', None, type=str)
