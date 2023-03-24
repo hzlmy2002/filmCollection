@@ -244,6 +244,13 @@ def personality_analysis():
             data['genre_trait_range'] = requests.get(genre_trait_range_url).json()
             data['genre_trait_range_data'] = {"genre": data['genres'][int(genreID) - 1], "trait": data['traits'][int(trait_code)]}
 
+        # for varying degrees of a personality trait, what ratings do users usually give (across all films)?
+        trait_code = request.form.get('all_film_trait_range_trait')
+        if trait_code is not None:
+            all_film_trait_range_url = f'http://backend:5000/api/v1/traits/all-film-trait-range/{trait_code}'
+            data['all_film_trait_range'] = requests.get(all_film_trait_range_url).json()
+            data['all_film_trait_range_data'] = {"trait": data['traits'][int(trait_code)]}
+
     return render_template('personality_analysis.html', data=data)
 
 def draw_ratings_pie_chart(results):
