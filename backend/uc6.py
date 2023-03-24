@@ -51,6 +51,27 @@ class AnalyseGenreToTraits(Resource):
     def get(self, genreID:int, highest:int):
         at = AnalyseTrait(dbConnection)
         return at.getTraitGenreRanking(genreID, highest)
+    
+# for a genre, which degrees of a personality trait liked it most?
+class AnalyseGenreToTraitRange(Resource):
+    @cache.cached(timeout=3600, query_string=True)
+    def get(self, trait_code:int, genreID:int):
+        at = AnalyseTrait(dbConnection)
+        return at.getTraitRangeGenre(trait_code, genreID)
+
+# for a film, which degrees of a personality trait liked it most?
+class AnalyseFilmToTraitRange(Resource):
+    @cache.cached(timeout=3600, query_string=True)
+    def get(self, trait_code:int, movieID:int):
+        at = AnalyseTrait(dbConnection)
+        return at.getTraitRangeFilm(trait_code, movieID)
+
+# for varying degrees of a personality trait, what ratings do users usually give (across all films)?
+class AnalyseAllFilmToTraitRange(Resource):
+    @cache.cached(timeout=3600, query_string=True)
+    def get(self, trait_code:int):
+        at = AnalyseTrait(dbConnection)
+        return at.getTraitRangeAllFilm(trait_code)
 
 # return list of personality traits
 class GetAllTraits(Resource):
@@ -242,6 +263,96 @@ class AnalyseTrait():
             trait = row[0]
             avg = row[1]
             row_dict = {"trait": trait, "avg": avg}
+            result_list.append(row_dict)
+        
+        return result_list
+
+    def getTraitRangeGenre(self, trait_code:int, genreID:int):
+        sql_statm = "SELECT range_table.p_range, ROUND(AVG(range_table.range_rating), " + str(DECIMAL_PLACE) + ")"
+        sql_statm += " FROM ("
+        sql_statm += " SELECT p_ratings.rating AS range_rating,"
+        sql_statm += " CASE"
+        sql_statm += " WHEN p_users." + self.getTraitString(trait_code) + " < 2 THEN '0 < 2'"
+        sql_statm += " WHEN p_users." + self.getTraitString(trait_code) + " < 4 THEN '2 < 4'"
+        sql_statm += " WHEN p_users." + self.getTraitString(trait_code) + " < 6 THEN '4 < 6'"
+        sql_statm += " ELSE '> 6'"
+        sql_statm += " END AS p_range"
+        sql_statm += " FROM `Personality_users` AS p_users"
+        sql_statm += " JOIN `Personality_ratings` AS p_ratings ON p_users.userID = p_ratings.userID"
+        sql_statm += " JOIN `Movie_Genres` AS mov_gen ON p_ratings.movieID = mov_gen.movieID"
+        sql_statm += " WHERE mov_gen.genreID = " + str(genreID)
+        sql_statm += " ) AS range_table"
+        sql_statm += " GROUP BY range_table.p_range"
+        sql_statm += " ORDER BY AVG(range_table.range_rating) DESC;"
+
+        cur = self.conn.cursor()
+        cur.execute(sql_statm)
+        result = cur.fetchall()
+
+        result_list = []
+        for row in result:
+            range = row[0]
+            avg = row[1]
+            row_dict = {"range": range, "avg": avg}
+            result_list.append(row_dict)
+        
+        return result_list
+
+    def getTraitRangeFilm(self, trait_code:int, movieID:int):
+        sql_statm = "SELECT range_table.p_range, ROUND(AVG(range_table.range_rating), " + str(DECIMAL_PLACE) + ")"
+        sql_statm += " FROM ("
+        sql_statm += " SELECT p_ratings.rating AS range_rating,"
+        sql_statm += " CASE"
+        sql_statm += " WHEN p_users." + self.getTraitString(trait_code) + " < 2 THEN '0 < 2'"
+        sql_statm += " WHEN p_users." + self.getTraitString(trait_code) + " < 4 THEN '2 < 4'"
+        sql_statm += " WHEN p_users." + self.getTraitString(trait_code) + " < 6 THEN '4 < 6'"
+        sql_statm += " ELSE '> 6'"
+        sql_statm += " END AS p_range"
+        sql_statm += " FROM `Personality_users` AS p_users"
+        sql_statm += " JOIN `Personality_ratings` AS p_ratings ON p_users.userID = p_ratings.userID"
+        sql_statm += " WHERE p_ratings.movieID = " + str(movieID)
+        sql_statm += " ) AS range_table"
+        sql_statm += " GROUP BY range_table.p_range"
+        sql_statm += " ORDER BY AVG(range_table.range_rating) DESC;"
+
+        cur = self.conn.cursor()
+        cur.execute(sql_statm)
+        result = cur.fetchall()
+
+        result_list = []
+        for row in result:
+            range = row[0]
+            avg = row[1]
+            row_dict = {"range": range, "avg": avg}
+            result_list.append(row_dict)
+        
+        return result_list
+    
+    def getTraitRangeAllFilm(self, trait_code:int):
+        sql_statm = "SELECT range_table.p_range, ROUND(AVG(range_table.range_rating), " + str(DECIMAL_PLACE) + ")"
+        sql_statm += " FROM ("
+        sql_statm += " SELECT p_ratings.rating AS range_rating,"
+        sql_statm += " CASE"
+        sql_statm += " WHEN p_users." + self.getTraitString(trait_code) + " < 2 THEN '0 < 2'"
+        sql_statm += " WHEN p_users." + self.getTraitString(trait_code) + " < 4 THEN '2 < 4'"
+        sql_statm += " WHEN p_users." + self.getTraitString(trait_code) + " < 6 THEN '4 < 6'"
+        sql_statm += " ELSE '> 6'"
+        sql_statm += " END AS p_range"
+        sql_statm += " FROM `Personality_users` AS p_users"
+        sql_statm += " JOIN `Personality_ratings` AS p_ratings ON p_users.userID = p_ratings.userID"
+        sql_statm += " ) AS range_table"
+        sql_statm += " GROUP BY range_table.p_range"
+        sql_statm += " ORDER BY AVG(range_table.range_rating) DESC;"
+
+        cur = self.conn.cursor()
+        cur.execute(sql_statm)
+        result = cur.fetchall()
+
+        result_list = []
+        for row in result:
+            range = row[0]
+            avg = row[1]
+            row_dict = {"range": range, "avg": avg}
             result_list.append(row_dict)
         
         return result_list

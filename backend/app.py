@@ -2,7 +2,7 @@ from flask import Flask
 from cache import cache
 from flask_restx import Api
 from uc3 import analyseGeneralRatingAPI, analyseRatingByGenresAPI, analyseRatingSameGenresAPI, analyseRatingGroupGenresAPI
-from uc6 import AnalyseTraitToFilmRanking, AnalyseTraitToFilmRatings, AnalyseTraitToGenreRanking, AnalyseFilmToTraits, AnalyseGenreToTraits, GetAllTraits
+from uc6 import AnalyseTraitToFilmRanking, AnalyseTraitToFilmRatings, AnalyseTraitToGenreRanking, AnalyseFilmToTraits, AnalyseGenreToTraits, GetAllTraits, AnalyseGenreToTraitRange, AnalyseFilmToTraitRange, AnalyseAllFilmToTraitRange
 from visual_browsing import GetAllGenres, GetMovieGenres, GetMoviesData
 from tag_analysis import GetTagsByGenre, GetTagsByRating
 from movie_searcher import GetMovieActors, MovieSearcher, MovieSearcherV2
@@ -63,3 +63,6 @@ api.add_resource(AnalyseTraitToGenreRanking, '/api/v1/traits/trait-genre-ranking
 api.add_resource(AnalyseFilmToTraits, '/api/v1/traits/film-traits-ranking/<int:movieID>')
 api.add_resource(AnalyseGenreToTraits, '/api/v1/traits/genre-traits-ranking/<int:genreID>/<int:highest>')
 api.add_resource(GetAllTraits, '/api/v1/traits/get-all-traits')
+api.add_resource(AnalyseGenreToTraitRange, '/api/v1/traits/genre-trait-range/<int:trait_code>/<int:genreID>')
+api.add_resource(AnalyseFilmToTraitRange, '/api/v1/traits/film-trait-range/<int:trait_code>/<int:movieID>')
+api.add_resource(AnalyseAllFilmToTraitRange, '/api/v1/traits/all-film-trait-range/<int:trait_code>')

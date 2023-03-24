@@ -47,7 +47,7 @@ class GetAllGenres(Resource):
         payload = {}
         command = ("SELECT Genres.genre FROM Genres")
         result = [row[0] for row in SqlExecutor().execute_sql(command)]
-        payload["all_genres"] = result
+        payload["all_genres"] = result[:-1]
         return payload
 
 

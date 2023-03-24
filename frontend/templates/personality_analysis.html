@@ -59,6 +59,31 @@
         </select>
         <input type="submit">
     </form>
+    <form method="POST">
+        <label for="genre-trait-range-trait">Choose trait to analyse:</label>
+        <select id="genre-trait-range-trait" name="genre_trait_range_trait">
+            {% for trait in data['traits'] %}
+            <option value="{{ loop.index - 1 }}">{{ trait }}</option>
+            {% endfor %}
+        </select>
+        <label for="genre-trait-range-genre">Choose genre to analyse:</label>
+        <select id="genre-trait-range-genre" name="genre_trait_range_genre">
+            {% for genre in data['genres'] %}
+            <option value="{{ loop.index }}">{{ genre }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit">
+    </form>
+    <form method="POST">
+        <label for="all-film-trait-range-trait">Choose trait to analyse:</label>
+        <select id="all-film-trait-range-trait" name="all_film_trait_range_trait">
+            {% for trait in data['traits'] %}
+            <option value="{{ loop.index - 1 }}">{{ trait }}</option>
+            {% endfor %}
+        </select>
+        <label for="all-film-trait-range-trait">View average ratings given by users (varying degrees):</label>
+        <input id="all-film-trait-range-trait" type="submit">
+    </form>
 </div>
 <div class="results">
     {% if data['trait_film_ranking'] %}
@@ -123,6 +148,36 @@
         {% for p in data['film_traits_ranking'] %}
         <tr>
             <td>{{ p.trait }}</td>
+            <td>{{ p.avg }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    {% if data['genre_trait_range'] %}
+    <h3>Analysing personality trait: {{ data['genre_trait_range_data'].trait }} | Analysing genre: {{ data['genre_trait_range_data'].genre }}</h2>
+    <table>
+        <tr>
+            <th>Range</th>
+            <th>Ratings</th>
+        </tr>
+        {% for p in data['genre_trait_range'] %}
+        <tr>
+            <td>{{ p.range }}</td>
+            <td>{{ p.avg }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    {% if data['all_film_trait_range'] %}
+    <h3>Analysing personality trait: {{ data['all_film_trait_range_data'].trait }}</h2>
+    <table>
+        <tr>
+            <th>Range</th>
+            <th>Ratings</th>
+        </tr>
+        {% for p in data['all_film_trait_range'] %}
+        <tr>
+            <td>{{ p.range }}</td>
             <td>{{ p.avg }}</td>
         </tr>
         {% endfor %}
