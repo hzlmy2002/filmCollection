@@ -48,7 +48,6 @@ class GetAllGenres(Resource):
 
 class GetMovieGenres(Resource):
     # Get a list of genres for a movie
-    @cache.cached(timeout=3600, query_string=True)
     def get(self, movieID):
         payload = {}
         command = ("SELECT Genres.genre "
