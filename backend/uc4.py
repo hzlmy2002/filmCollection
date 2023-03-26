@@ -2,6 +2,7 @@ from sql_executor import SqlExecutor
 from flask_restx import Resource
 from conn import dbConnection
 
+
 class GetTagsByGenre(Resource):
     def get(self, genre):
         command = ("SELECT User_tags.movielens_tag AS tag_name, COUNT(Genres.genre) AS tag_count "
@@ -13,7 +14,7 @@ class GetTagsByGenre(Resource):
                    "HAVING Genres.genre = %s AND tag_count > 3 "
                    "ORDER BY tag_count DESC;")
         dbConnection.reconnect()
-        cur=dbConnection.cursor()
+        cur = dbConnection.cursor()
         cur.execute(command, (genre,))
         result = cur.fetchall()
         cur.close()
@@ -35,7 +36,7 @@ class GetTagsByRating(Resource):
                    "AND ROUND(AVG(User_ratings.movielens_rating)) = %s "
                    "ORDER BY tag_count DESC;")
         dbConnection.reconnect()
-        cur=dbConnection.cursor()
+        cur = dbConnection.cursor()
         cur.execute(command, (rating,))
         result = cur.fetchall()
         cur.close()

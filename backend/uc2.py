@@ -1,5 +1,5 @@
 from sql_executor import SqlExecutor
-from visual_browsing import GetMovieGenres
+from uc1 import GetMovieGenres
 from flask_restx import Resource
 from cache import cache
 from conn import dbConnection
@@ -13,7 +13,7 @@ class GetMovieActors(Resource):
                    "WHERE Movies.movieID = Movie_Actors.movieID AND Movie_Actors.actorID = Actors.actorID "
                    "AND Movies.movieID = %s")
         dbConnection.reconnect()
-        cursor=dbConnection.cursor()
+        cursor = dbConnection.cursor()
         cursor.execute(command, (movieID,))
         result = [row[0] for row in cursor.fetchall()]
         cursor.close()
@@ -34,7 +34,7 @@ class MovieSearcher(Resource):
                         "LEFT JOIN Actors ON Movie_Actors.actorID = Actors.actorID ")
         command += "WHERE LOWER("+column+") LIKE %s"
         dbConnection.reconnect()
-        cursor=dbConnection.cursor()
+        cursor = dbConnection.cursor()
 
         cursor.execute(command, (f'%{value}%',))
         result = cursor.fetchall()
@@ -48,6 +48,7 @@ class MovieSearcher(Resource):
             movie["genres"] = GetMovieGenres().get(movie["movieID"])
         return result_dict
 
+
 class MovieSearcherV2(Resource):
     @cache.cached(timeout=3600, query_string=True)
     def get(self, movieID):
@@ -56,10 +57,10 @@ class MovieSearcherV2(Resource):
                    "LEFT JOIN Movie_Directors ON Movies.movieID = Movie_Directors.movieID "
                    "LEFT JOIN Directors ON Movie_Directors.directorID = Directors.directorID "
                    "LEFT JOIN Movie_Actors ON Movies.movieID = Movie_Actors.movieID "
-                    "LEFT JOIN Actors ON Movie_Actors.actorID = Actors.actorID ")
+                   "LEFT JOIN Actors ON Movie_Actors.actorID = Actors.actorID ")
         command += f"WHERE Movies.movieID = %s"
         dbConnection.reconnect()
-        cursor=dbConnection.cursor()
+        cursor = dbConnection.cursor()
         cursor.execute(command, (movieID,))
         result = cursor.fetchall()
         cursor.close()
@@ -73,4 +74,3 @@ class MovieSearcherV2(Resource):
             movie["actors"] = GetMovieActors().get(movie["movieID"])
             movie["genres"] = GetMovieGenres().get(movie["movieID"])
         return result_dict
-    
