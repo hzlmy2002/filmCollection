@@ -182,7 +182,7 @@
                 <table class="table table-striped table-hover table-bordered">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th>ID</th>
                             <th>Title
                                 <div>
                                     <a id="sort-link" href='/?sort=title&order=true' class="btn btn-outline-secondary"
@@ -271,7 +271,7 @@
                     <tbody>
                         {% for movie in movies %}
                         <tr>
-                            <td>{{ loop.index }}</td>
+                            <td>{{ movie.movieID }}</td>
                             <td>{{ movie.title }}</td>
                             <td>{{ movie.date }}</td>
                             <td>{{ movie.rotten_tomatoes_rating }}</td>
