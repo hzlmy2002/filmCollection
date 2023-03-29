@@ -155,7 +155,7 @@ for rate in ratings_csv:
     movieID = rate[1]
     rating = rate[2]
     timestamp = rate[3]
-    timestamp_format = "NULL" if (timestamp == None or timestamp == 'N/A' or timestamp == '') else ("'" + str(datetime.fromtimestamp(int(timestamp))) + "'")
+    timestamp_format = "NULL" if (timestamp == None or timestamp == 'N/A' or timestamp == '') else timestamp
 
     if movieID in movies_dict:
         user_ratings_values.append([userID, movieID, timestamp_format, rating])
@@ -167,7 +167,7 @@ for t in tags_csv:
     tag = t[2]
     tag_format = "'" + tag.replace("'", "\\'") + "'"
     timestamp = t[3]
-    timestamp_format = "NULL" if (timestamp == None or timestamp == 'N/A' or timestamp == '') else ("'" + str(datetime.fromtimestamp(int(timestamp))) + "'")
+    timestamp_format = "NULL" if (timestamp == None or timestamp == 'N/A' or timestamp == '') else timestamp
 
     if movieID in movies_dict:
         user_tags_values.append([userID, movieID, timestamp_format, tag_format])
@@ -301,7 +301,7 @@ sql_lines.append(movies_table)
 user_ratings_table = create_table(
     "User_ratings",
     ["userID", "movieID", "timestamp", "movielens_rating"],
-    ["int(11)", "int(11)", "datetime", "double"],
+    ["int(11)", "int(11)", "int(11)", "double"],
     ["userID", "movieID", "movielens_rating"]
 )
 sql_lines.append(user_ratings_table)
@@ -309,7 +309,7 @@ sql_lines.append(user_ratings_table)
 user_tags_table = create_table(
     "User_tags",
     ["userID", "movieID", "timestamp", "movielens_tag"],
-    ["int(11)", "int(11)", "datetime", "varchar(511)"],
+    ["int(11)", "int(11)", "int(11)", "varchar(511)"],
     ["userID", "movieID", "movielens_tag"]
 )
 sql_lines.append(user_tags_table)
